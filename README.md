@@ -1,2 +1,2 @@
 # tchess
-chess game building with typescript + klaster.js
+chess game engine build with typescript 
