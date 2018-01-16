@@ -1,13 +1,47 @@
 class board {
     public fields: Array<Array<any>>;
-
+    
     constructor(json: string) {
         this.loadFromJson(json);
     }
-    
-    getField(position: [number, number]): any{
 
+    /**
+     * 
+     * @param position 
+     */
+    getFigure(position: [number, number]): any{
         return this.fields[position[0]][position[1]];
+    }
+
+    setFigure(position: [number, number], figure: any ): boolean{
+        this.fields[position[0]][position[1]] = figure;
+        return true;
+    }
+
+    
+
+    /**
+     * 
+     * @param from 
+     * @param to 
+     */
+    moveFigure(from: [number, number], to: [number, number]): object{
+        let figure = this.getFigure(from);
+
+        let intent = figure.move(to);
+        let kickedFigure = this.getFigure(to);
+
+        if(intent.movable){
+
+            if(kickedFigure){
+                // kickedFigure  
+            }
+
+            this.setFigure(to, figure);
+            this.setFigure(from, false);
+        }
+
+        return intent;
     }
 
     saveAsJson(): string{
@@ -27,6 +61,10 @@ class board {
         return JSON.stringify(exp);
     }
 
+    /**
+     * 
+     * @param jso 
+     */
     loadFromJson(jso: string): void{
         let import: object = JSON.parse(jso);
 

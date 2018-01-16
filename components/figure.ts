@@ -2,6 +2,7 @@ class figure {
 
     public name: string = "figure";
     public steps: Array<Array<number>> = [ [0,1] ];
+    private _buildSteps: Array<Array<number>> = [ [1,1] ]; 
     public board: board;
     public intent: Intent;
 
@@ -11,16 +12,20 @@ class figure {
     ) { }
 
     move(position: [number, number]): Intent{
-        return this.isMovable(position);
+        let intent = this.isMovable(position);
+        if(intent.movable){
+            this.position = position;
+        }
+        return intent;
     }
-
+    
     isMovable(position: [number, number]): Intent{
 
-        let field = this.board.getField(position);
+        let field = this.board.getFigure(position);
 
         let result:Intent = {movable : true, info : "", position: position};
 
-        if(!field){
+        if(typeof field === "undefined"){
             result.movable = false;
             result.info = "out of range";
         }
@@ -38,14 +43,39 @@ class figure {
         return result;
     }
 
-    getMoves(): number[][]{
-        let moves = [];
+    generateSteps(position: [number, number]): Array<Array<number>> {
+        let s: Array<Array<number>> = [];
+        for(let m in this._buildSteps){
+            let dir = this._buildSteps[m];
+            let x = 0, y = 0;
+            for(let i = 0; i <= board.fields.length;i++){
+                x += dir[0];
+                y += dir[1];
 
-        for(let m in this.steps){
+                let intent = this.isMovable([position[0] + x, position[1] + y]);
+
+                if(intent.info !== "out of range"){
+                    s.push([x, y]);
+                }
+
+                if(intent.info === "gegner schlagen" || intent.info === "eigene Figur") {
+                    break;  
+                }
+
+            }
+        }
+        return s;
+    }
+
+    getMoves(position: [number, number]): number[][]{
+        let moves = [];
+        let steps = this.steps.concat(...this.generateSteps(position));
+        
+        for(let m in steps){
 
             let move: Intent = this.isMovable([
-                this.position[0] + this.steps[m][0], 
-                this.position[1] + this.steps[m][1]
+                this.position[0] + steps[m][0], 
+                this.position[1] + steps[m][1]
             ]);
 
             if(move.info !== "out of range"){
