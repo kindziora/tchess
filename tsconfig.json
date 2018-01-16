@@ -3,6 +3,16 @@
         "target": "es5",
        // "module": "commonjs",
         "sourceMap": true,
-        "outFile": "build/app.js"
-    }
+        "outFile": "build/app.js",
+       
+    },
+    "files" : [
+        "components/interfaces/intent.ts",
+        "components/board.ts",
+        "components/figure.ts",
+        "chess.ts"
+    ],
+    "include": [
+        "components/figure/*.ts"
+    ]
 }

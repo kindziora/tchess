@@ -1,6 +1,15 @@
 class board {
     public fields: Array<Array<any>>;
-    
+    public moves: Array<Array<any>>;
+    public lost: object = {
+        "white": [],
+        "black": []
+    };
+
+    /**
+     * 
+     * @param json 
+     */
     constructor(json: string) {
         this.loadFromJson(json);
     }
@@ -18,8 +27,6 @@ class board {
         return true;
     }
 
-    
-
     /**
      * 
      * @param from 
@@ -32,52 +39,52 @@ class board {
         let kickedFigure = this.getFigure(to);
 
         if(intent.movable){
-
             if(kickedFigure){
-                // kickedFigure  
+                this.lost[kickedFigure.color].push(kickedFigure);
             }
-
             this.setFigure(to, figure);
             this.setFigure(from, false);
-        }
 
+            this.moves.push([from, to]);
+
+        }
+        
         return intent;
     }
 
-    saveAsJson(): string{
+    getAsJson(): string{
+        let temp = this.fields;
+        for(let x = 0; x < this.fields.length; x++) {
+            for(let y = 0; y < this.fields.length; y++) {
 
-        let exp: object = [];
-
-        for(let x = 0; x <= 8; x++) {
-            for(let y = 0; y <= 8; y++) {
                 if(typeof this.fields[x][y] !== "undefined"){
-                    exp[x][y] = {
+                    temp[x][y] = {
                         type : this.fields[x][y].constructor.name,
-                        color : this.fields[x][y].color 
+                        color :  (this.fields[x][y].color  === 'black') ? 0 : 1
                     }; 
                 } 
             }
         }
-        return JSON.stringify(exp);
+       
+        return JSON.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
     }
 
-    /**
-     * 
-     * @param jso 
-     */
     loadFromJson(jso: string): void{
-        let import: object = JSON.parse(jso);
-
-        for(let x = 0; x <= 8; x++) {
-            for(let y = 0; y <= 8; y++) {
-                if(typeof window[import[x][y].type] !== "undefined"){
-                    this.fields[x][y] = new window[import[x][y].type](import[x][y].color, [x,y]); 
-
+        let imp = JSON.parse(jso);
+        this.fields = imp.fields;
+        for(let x = 0; x < imp.fields.length; x++) {
+            for(let y = 0; y < imp.fields.length; y++) {
+                if(typeof imp.fields[x][y].type !== "undefined"){
+                    console.log( Figures );
+                    this.fields[x][y] = new Figures[imp.fields[x][y].type](imp.fields[x][y].color, [x,y]);
                 }else{
                     this.fields[x][y] = false; 
                 }
             }
         }
+
+        this.moves = imp.moves;
+        this.lost = imp.lost;
     }
 
    

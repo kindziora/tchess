@@ -2,14 +2,17 @@ class figure {
 
     public name: string = "figure";
     public steps: Array<Array<number>> = [ [0,1] ];
-    private _buildSteps: Array<Array<number>> = [ [1,1] ]; 
+    public _buildSteps: Array<Array<number>> = [ [] ]; 
     public board: board;
     public intent: Intent;
+    public color: string;
 
     constructor(
-        public color: boolean, 
+        color: number, 
         public position: [number, number]
-    ) { }
+    ) {
+        this.color = (color === 0) ? 'black' : 'white';
+     }
 
     move(position: [number, number]): Intent{
         let intent = this.isMovable(position);
@@ -86,7 +89,5 @@ class figure {
         
         return moves;
     }
-
-
 
 }
