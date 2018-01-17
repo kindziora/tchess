@@ -19,11 +19,11 @@ class board {
      * @param position 
      */
     getFigure(position: [number, number]): any{
-        return this.fields[position[0]][position[1]];
+        return this.fields[position[1]][position[0]];
     }
 
     setFigure(position: [number, number], figure: any ): boolean{
-        this.fields[position[0]][position[1]] = figure;
+        this.fields[position[1]][position[0]] = figure;
         return true;
     }
 
@@ -34,33 +34,36 @@ class board {
      */
     moveFigure(from: [number, number], to: [number, number]): object{
         let figure = this.getFigure(from);
-
-        let intent = figure.move(to);
-        let kickedFigure = this.getFigure(to);
-
-        if(intent.movable){
-            if(kickedFigure){
-                this.lost[kickedFigure.color].push(kickedFigure);
+        let intent;
+        if(figure) {
+            intent = figure.move(to);
+            let kickedFigure = this.getFigure(to);
+    
+            if(intent.movable){
+                if(kickedFigure){
+                    this.lost[kickedFigure.color].push(kickedFigure);
+                }
+                this.setFigure(to, figure);
+                this.setFigure(from, false);
+    
+                this.moves.push([from, to]);
+    
             }
-            this.setFigure(to, figure);
-            this.setFigure(from, false);
-
-            this.moves.push([from, to]);
-
         }
         
         return intent;
     }
 
     getAsJson(): string{
-        let temp = this.fields;
+        let temp = JSON.parse(CircularJSON.stringify(this.fields));
+
         for(let x = 0; x < this.fields.length; x++) {
             for(let y = 0; y < this.fields.length; y++) {
 
-                if(typeof this.fields[x][y] !== "undefined"){
-                    temp[x][y] = {
-                        type : this.fields[x][y].constructor.name,
-                        color :  (this.fields[x][y].color  === 'black') ? 0 : 1
+                if(typeof this.fields[y][x] !== "undefined"){
+                    temp[y][x] = {
+                        type : !this.fields[y][x] ? false : this.fields[y][x].constructor.name,
+                        color :  (this.fields[y][x].color  === 'black') ? 0 : 1
                     }; 
                 } 
             }
@@ -71,12 +74,15 @@ class board {
 
     loadFromJson(jso: string): void{
         let imp = JSON.parse(jso);
-        this.fields = imp.fields;
+        this.fields = JSON.parse(CircularJSON.stringify(imp.fields))
         for(let x = 0; x < imp.fields.length; x++) {
             for(let y = 0; y < imp.fields.length; y++) {
-                if(typeof imp.fields[x][y].type !== "undefined"){
-                    console.log( Figures );
-                    this.fields[x][y] = new Figures[imp.fields[x][y].type](imp.fields[x][y].color, [x,y]);
+                if(typeof imp.fields[y][x].type !== "undefined"){
+                     this.fields[y][x] = new Figures[imp.fields[y][x].type](
+                        imp.fields[y][x].color,
+                        [x,y],
+                        this
+                    );
                 }else{
                     this.fields[x][y] = false; 
                 }

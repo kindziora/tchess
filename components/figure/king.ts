@@ -1,13 +1,14 @@
 namespace Figures {
-    class king extends figure {
+    export class king extends figure {
         public name: string = "König";
         public steps: Array<Array<number>> = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
 
         constructor(
             color: number,
-            public position: [number, number]
+            public position: [number, number],
+            public board: board
         ) {
-            super(color, position);
+            super(color, position, board);
 
             if (this.color === "black") {
                 this.steps = [[0, -1]];

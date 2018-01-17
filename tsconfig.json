@@ -4,15 +4,16 @@
        // "module": "commonjs",
         "sourceMap": true,
         "outFile": "build/app.js",
-       
+        "allowJs" : true
     },
     "files" : [
+        "node_modules/circular-json/build/circular-json.js",
         "components/interfaces/intent.ts",
-        "components/board.ts",
-        "components/figure.ts",
-        "chess.ts"
+        "components/figure.ts"
     ],
     "include": [
-        "components/figure/*.ts"
+        "components/figure/*.ts",
+        "components/board.ts",
+        "chess.ts"
     ]
 }

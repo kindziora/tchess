@@ -1,13 +1,14 @@
 namespace Figures {
-    class pawn extends figure {
+    export class pawn extends figure {
         public name: string = "Bauer";
         public steps: Array<Array<number>> = [[0, 1]];
 
         constructor(
             color: number,
-            public position: [number, number]
+            public position: [number, number],
+            public board: board
         ) {
-            super(color, position);
+            super(color, position, board);
 
             if (this.color === "black") {
                 this.steps = [[0, -1]];

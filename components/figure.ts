@@ -3,13 +3,13 @@ class figure {
     public name: string = "figure";
     public steps: Array<Array<number>> = [ [0,1] ];
     public _buildSteps: Array<Array<number>> = [ [] ]; 
-    public board: board;
     public intent: Intent;
     public color: string;
 
     constructor(
         color: number, 
-        public position: [number, number]
+        public position: [number, number],
+        public board: board
     ) {
         this.color = (color === 0) ? 'black' : 'white';
      }
