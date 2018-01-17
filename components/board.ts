@@ -35,7 +35,17 @@ class board {
     moveFigure(from: [number, number], to: [number, number]): object{
         let figure = this.getFigure(from);
         let intent;
-        if(figure) {
+        let last = this.getFigure(this.moves[this.moves.length-1]);
+
+        if(last){
+            if(figure.color === last.color){
+                intent.movable = false;
+                intent.info = "wrong turn";
+                intent.position = from;
+            }
+        }
+        
+        if(figure && !intent) {
             intent = figure.move(to);
             let kickedFigure = this.getFigure(to);
     
