@@ -13,7 +13,6 @@
     ],
     "include": [
         "components/figure/*.ts",
-        "components/board.ts",
-        "chess.ts"
+        "components/board.ts"
     ]
 }

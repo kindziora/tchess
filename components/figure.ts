@@ -28,6 +28,8 @@ class figure {
 
         let result:Intent = {movable : true, info : "", position: position};
 
+
+        
         if(typeof field === "undefined"){
             result.movable = false;
             result.info = "out of range";

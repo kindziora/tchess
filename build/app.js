@@ -147,26 +147,12 @@ var Figures;
 (function (Figures) {
     var king = /** @class */ (function (_super) {
         __extends(king, _super);
-        function king(color, position, board) {
-            var _this = _super.call(this, color, position, board) || this;
-            _this.position = position;
-            _this.board = board;
+        function king() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "König";
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
-            if (_this.color === "black") {
-                _this.steps = [[0, -1]];
-            }
             return _this;
         }
-        king.prototype.getMoves = function (position) {
-            var moves = _super.prototype.getMoves.call(this, position);
-            var starter = (this.color === "white") ? 1 : 6;
-            var direction = (this.color === "white") ? 2 : -2;
-            if (this.position[1] == starter) {
-                moves.push([this.position[0], this.position[1] + direction]);
-            }
-            return moves;
-        };
         return king;
     }(figure));
     Figures.king = king;
@@ -318,17 +304,4 @@ var board = /** @class */ (function () {
     };
     return board;
 }());
-var chess = /** @class */ (function () {
-    function chess() {
-    }
-    chess.start = function () {
-        return new board(this.defaultBoard);
-    };
-    chess.defaultBoard = '{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":[]}';
-    return chess;
-}());
-var game = chess.start();
-console.log(game.getAsJson());
-console.log(game.moveFigure([1, 1], [1, 2]));
-console.log(game.getAsJson());
 //# sourceMappingURL=app.js.map
