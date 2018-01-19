@@ -1,4 +1,4 @@
-namespace Figures {
+namespace Tchess {
 
     export class bishop extends figure {
         public name: string = "Läufer";

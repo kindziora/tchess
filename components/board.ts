@@ -6,6 +6,12 @@ class board {
         "black": []
     };
 
+    public territory: object = {
+        "white": [],
+        "black": []
+    };
+
+
     /**
      * 
      * @param json 
@@ -19,7 +25,10 @@ class board {
      * @param position 
      */
     getFigure(position: [number, number]): any{
-        return this.fields[position[1]][position[0]];
+        if(typeof this.fields[position[1]] !== "undefined" && 
+            typeof this.fields[position[1]][position[0]] !== "undefined" ){
+            return this.fields[position[1]][position[0]];
+        }
     }
 
     setFigure(position: [number, number], figure: any ): boolean{
@@ -27,6 +36,10 @@ class board {
         return true;
     }
 
+    hasTurn(color: string): boolean {
+        return (this.moves.length % 2 === 0) && color === "white" ||  (this.moves.length % 2 > 0) && color === "black";
+    }
+    
     /**
      * 
      * @param from 
@@ -34,9 +47,9 @@ class board {
      */
     moveFigure(from: [number, number], to: [number, number]): object{
         let figure = this.getFigure(from);
-        let intent;
+        let intent = { movable : false, info : "keine figur"};
         
-        if(figure) {
+        if(figure) { 
             intent = figure.move(to);
             let kickedFigure = this.getFigure(to);
     
@@ -46,12 +59,12 @@ class board {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
-    
+
                 this.moves.push([from, to]);
-    
+                this.territory[figure.color].push(figure.plainmoves);
             }
         }
-        
+
         return intent;
     }
 
@@ -70,7 +83,7 @@ class board {
             }
         }
        
-        return JSON.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
+        return CircularJSON.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
     }
 
     loadFromJson(jso: string): void{
@@ -79,20 +92,20 @@ class board {
         for(let x = 0; x < imp.fields.length; x++) {
             for(let y = 0; y < imp.fields.length; y++) {
                 if(typeof imp.fields[y][x].type !== "undefined"){
-                     this.fields[y][x] = new Figures[imp.fields[y][x].type](
+                     this.fields[y][x] = new Tchess[imp.fields[y][x].type](
                         imp.fields[y][x].color,
                         [x,y],
                         this
                     );
+                    this.fields[y][x].getMoves();
+                    this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
                 }else{
                     this.fields[x][y] = false; 
                 }
             }
         }
-
         this.moves = imp.moves;
         this.lost = imp.lost;
     }
-
    
 }

@@ -1,4 +1,4 @@
-namespace Figures {
+namespace Tchess {
     export class pawn extends figure {
         public name: string = "Bauer";
         public steps: Array<Array<number>> = [[0, 1]];
@@ -15,14 +15,14 @@ namespace Figures {
             }
         }
 
-        getMoves(position: [number, number]): number[][] {
-            let moves = super.getMoves(position);
+        getMoves(): number[][] {
+            let moves = super.getMoves();
 
             let starter = (this.color === "white") ? 1 : 6;
             let direction = (this.color === "white") ? 2 : -2;
 
             if (this.position[1] == starter) {
-                moves.push([this.position[0], this.position[1] + direction]);
+                moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
             }
             return moves;
         }

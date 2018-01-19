@@ -2,9 +2,10 @@ class figure {
 
     public name: string = "figure";
     public steps: Array<Array<number>> = [ [0,1] ];
-    public _buildSteps: Array<Array<number>> = [ [] ]; 
+    public _buildSteps: Array<Array<number>> = []; 
     public intent: Intent;
     public color: string;
+    public plainmoves: Array<Array<number>>;
 
     constructor(
         color: number, 
@@ -16,20 +17,33 @@ class figure {
 
     move(position: [number, number]): Intent{
         let intent = this.isMovable(position);
+
+        if(!this.isInMovables(position)){
+            intent.movable = false;
+            intent.info = "nicht erlaubter Schritt";
+        }
+
+        if(!this.board.hasTurn(this.color)){
+            intent.movable = false;
+            intent.info = "Gegner am Zug";
+        }
+
         if(intent.movable){
             this.position = position;
         }
         return intent;
     }
     
+    isInMovables(position: [number, number]): boolean {
+        return this.getMoves().filter((e)=>e.position[0] === position[0] &&
+        e.position[1] === position[1] ).length > 0;
+    }
     isMovable(position: [number, number]): Intent{
 
         let field = this.board.getFigure(position);
 
         let result:Intent = {movable : true, info : "", position: position};
 
-
-        
         if(typeof field === "undefined"){
             result.movable = false;
             result.info = "out of range";
@@ -43,6 +57,9 @@ class figure {
                 result.movable = true;
                 result.info = "gegner schlagen";
             }
+        }else{
+            result.movable = true;
+            result.info = "leeres Feld";
         }
 
         return result;
@@ -53,7 +70,7 @@ class figure {
         for(let m in this._buildSteps){
             let dir = this._buildSteps[m];
             let x = 0, y = 0;
-            for(let i = 0; i <= board.fields.length;i++){
+            for(let i = 0; i <= this.board.fields.length;i++){
                 x += dir[0];
                 y += dir[1];
 
@@ -72,23 +89,21 @@ class figure {
         return s;
     }
 
-    getMoves(position: [number, number]): number[][]{
+    getMoves(): number[][]{
         let moves = [];
-        let steps = this.steps.concat(...this.generateSteps(position));
-        
-        for(let m in steps){
-
-            let move: Intent = this.isMovable([
+        let steps = this.steps.concat(...this.generateSteps(this.position));
+        this.plainmoves = [];
+        for(let m in steps){ 
+            let plain = [
                 this.position[0] + steps[m][0], 
                 this.position[1] + steps[m][1]
-            ]);
-
+            ];
+            let move: Intent = this.isMovable(plain);
             if(move.info !== "out of range"){
                 moves.push(move);
+                this.plainmoves.push(plain.join(',')); 
             }
-           
         }
-        
         return moves;
     }
 

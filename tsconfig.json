@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
         "target": "es5",
-       // "module": "commonjs",
+       // "module": "CommonJS",
+       // "moduleResolution": "node",
         "sourceMap": true,
-        "outFile": "build/app.js",
+        "outFile": "build/index.js",
         "allowJs" : true
     },
     "files" : [
@@ -13,6 +14,10 @@
     ],
     "include": [
         "components/figure/*.ts",
-        "components/board.ts"
+        "components/board.ts",
+        "./tchess.ts"        
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }

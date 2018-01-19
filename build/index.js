@@ -64,15 +64,27 @@ var figure = /** @class */ (function () {
         this.board = board;
         this.name = "figure";
         this.steps = [[0, 1]];
-        this._buildSteps = [[]];
+        this._buildSteps = [];
         this.color = (color === 0) ? 'black' : 'white';
     }
     figure.prototype.move = function (position) {
         var intent = this.isMovable(position);
+        if (!this.isInMovables(position)) {
+            intent.movable = false;
+            intent.info = "nicht erlaubter Schritt";
+        }
+        if (!this.board.hasTurn(this.color)) {
+            intent.movable = false;
+            intent.info = "Gegner am Zug";
+        }
         if (intent.movable) {
             this.position = position;
         }
         return intent;
+    };
+    figure.prototype.isInMovables = function (position) {
+        return this.getMoves().filter(function (e) { return e.position[0] === position[0] &&
+            e.position[1] === position[1]; }).length > 0;
     };
     figure.prototype.isMovable = function (position) {
         var field = this.board.getFigure(position);
@@ -91,6 +103,10 @@ var figure = /** @class */ (function () {
                 result.info = "gegner schlagen";
             }
         }
+        else {
+            result.movable = true;
+            result.info = "leeres Feld";
+        }
         return result;
     };
     figure.prototype.generateSteps = function (position) {
@@ -98,7 +114,7 @@ var figure = /** @class */ (function () {
         for (var m in this._buildSteps) {
             var dir = this._buildSteps[m];
             var x = 0, y = 0;
-            for (var i = 0; i <= board.fields.length; i++) {
+            for (var i = 0; i <= this.board.fields.length; i++) {
                 x += dir[0];
                 y += dir[1];
                 var intent = this.isMovable([position[0] + x, position[1] + y]);
@@ -112,16 +128,19 @@ var figure = /** @class */ (function () {
         }
         return s;
     };
-    figure.prototype.getMoves = function (position) {
+    figure.prototype.getMoves = function () {
         var moves = [];
-        var steps = (_a = this.steps).concat.apply(_a, this.generateSteps(position));
+        var steps = (_a = this.steps).concat.apply(_a, this.generateSteps(this.position));
+        this.plainmoves = [];
         for (var m in steps) {
-            var move = this.isMovable([
+            var plain = [
                 this.position[0] + steps[m][0],
                 this.position[1] + steps[m][1]
-            ]);
+            ];
+            var move = this.isMovable(plain);
             if (move.info !== "out of range") {
                 moves.push(move);
+                this.plainmoves.push(plain.join(','));
             }
         }
         return moves;
@@ -129,8 +148,8 @@ var figure = /** @class */ (function () {
     };
     return figure;
 }());
-var Figures;
-(function (Figures) {
+var Tchess;
+(function (Tchess) {
     var bishop = /** @class */ (function (_super) {
         __extends(bishop, _super);
         function bishop() {
@@ -141,10 +160,10 @@ var Figures;
         }
         return bishop;
     }(figure));
-    Figures.bishop = bishop;
-})(Figures || (Figures = {}));
-var Figures;
-(function (Figures) {
+    Tchess.bishop = bishop;
+})(Tchess || (Tchess = {}));
+var Tchess;
+(function (Tchess) {
     var king = /** @class */ (function (_super) {
         __extends(king, _super);
         function king() {
@@ -153,12 +172,24 @@ var Figures;
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
             return _this;
         }
+        king.prototype.getMoves = function () {
+            var moves = _super.prototype.getMoves.call(this);
+            for (var m in moves) {
+                var move = moves[m].join(',');
+                var opponent = (this.color === 'black') ? 'white' : 'black';
+                if (this.board.territory[opponent].indexOf(move) !== -1) {
+                    moves[m].movable = false;
+                    moves[m].info = "spieler im schach";
+                }
+            }
+            return moves;
+        };
         return king;
     }(figure));
-    Figures.king = king;
-})(Figures || (Figures = {}));
-var Figures;
-(function (Figures) {
+    Tchess.king = king;
+})(Tchess || (Tchess = {}));
+var Tchess;
+(function (Tchess) {
     var knight = /** @class */ (function (_super) {
         __extends(knight, _super);
         function knight() {
@@ -169,10 +200,10 @@ var Figures;
         }
         return knight;
     }(figure));
-    Figures.knight = knight;
-})(Figures || (Figures = {}));
-var Figures;
-(function (Figures) {
+    Tchess.knight = knight;
+})(Tchess || (Tchess = {}));
+var Tchess;
+(function (Tchess) {
     var pawn = /** @class */ (function (_super) {
         __extends(pawn, _super);
         function pawn(color, position, board) {
@@ -186,21 +217,21 @@ var Figures;
             }
             return _this;
         }
-        pawn.prototype.getMoves = function (position) {
-            var moves = _super.prototype.getMoves.call(this, position);
+        pawn.prototype.getMoves = function () {
+            var moves = _super.prototype.getMoves.call(this);
             var starter = (this.color === "white") ? 1 : 6;
             var direction = (this.color === "white") ? 2 : -2;
             if (this.position[1] == starter) {
-                moves.push([this.position[0], this.position[1] + direction]);
+                moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
             }
             return moves;
         };
         return pawn;
     }(figure));
-    Figures.pawn = pawn;
-})(Figures || (Figures = {}));
-var Figures;
-(function (Figures) {
+    Tchess.pawn = pawn;
+})(Tchess || (Tchess = {}));
+var Tchess;
+(function (Tchess) {
     var queen = /** @class */ (function (_super) {
         __extends(queen, _super);
         function queen() {
@@ -211,10 +242,10 @@ var Figures;
         }
         return queen;
     }(figure));
-    Figures.queen = queen;
-})(Figures || (Figures = {}));
-var Figures;
-(function (Figures) {
+    Tchess.queen = queen;
+})(Tchess || (Tchess = {}));
+var Tchess;
+(function (Tchess) {
     var tower = /** @class */ (function (_super) {
         __extends(tower, _super);
         function tower() {
@@ -225,8 +256,8 @@ var Figures;
         }
         return tower;
     }(figure));
-    Figures.tower = tower;
-})(Figures || (Figures = {}));
+    Tchess.tower = tower;
+})(Tchess || (Tchess = {}));
 var board = /** @class */ (function () {
     /**
      *
@@ -237,6 +268,10 @@ var board = /** @class */ (function () {
             "white": [],
             "black": []
         };
+        this.territory = {
+            "white": [],
+            "black": []
+        };
         this.loadFromJson(json);
     }
     /**
@@ -244,11 +279,17 @@ var board = /** @class */ (function () {
      * @param position
      */
     board.prototype.getFigure = function (position) {
-        return this.fields[position[1]][position[0]];
+        if (typeof this.fields[position[1]] !== "undefined" &&
+            typeof this.fields[position[1]][position[0]] !== "undefined") {
+            return this.fields[position[1]][position[0]];
+        }
     };
     board.prototype.setFigure = function (position, figure) {
         this.fields[position[1]][position[0]] = figure;
         return true;
+    };
+    board.prototype.hasTurn = function (color) {
+        return (this.moves.length % 2 === 0) && color === "white" || (this.moves.length % 2 > 0) && color === "black";
     };
     /**
      *
@@ -257,7 +298,7 @@ var board = /** @class */ (function () {
      */
     board.prototype.moveFigure = function (from, to) {
         var figure = this.getFigure(from);
-        var intent;
+        var intent = { movable: false, info: "keine figur" };
         if (figure) {
             intent = figure.move(to);
             var kickedFigure = this.getFigure(to);
@@ -268,6 +309,7 @@ var board = /** @class */ (function () {
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
                 this.moves.push([from, to]);
+                this.territory[figure.color].push(figure.plainmoves);
             }
         }
         return intent;
@@ -284,7 +326,7 @@ var board = /** @class */ (function () {
                 }
             }
         }
-        return JSON.stringify({ "fields": temp, "lost": this.lost, "moves": this.moves });
+        return CircularJSON.stringify({ "fields": temp, "lost": this.lost, "moves": this.moves });
     };
     board.prototype.loadFromJson = function (jso) {
         var imp = JSON.parse(jso);
@@ -292,7 +334,9 @@ var board = /** @class */ (function () {
         for (var x = 0; x < imp.fields.length; x++) {
             for (var y = 0; y < imp.fields.length; y++) {
                 if (typeof imp.fields[y][x].type !== "undefined") {
-                    this.fields[y][x] = new Figures[imp.fields[y][x].type](imp.fields[y][x].color, [x, y], this);
+                    this.fields[y][x] = new Tchess[imp.fields[y][x].type](imp.fields[y][x].color, [x, y], this);
+                    this.fields[y][x].getMoves();
+                    this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
                 }
                 else {
                     this.fields[x][y] = false;
@@ -304,4 +348,19 @@ var board = /** @class */ (function () {
     };
     return board;
 }());
-//# sourceMappingURL=app.js.map
+var Tchess;
+(function (Tchess) {
+    var game = /** @class */ (function () {
+        function game() {
+        }
+        game.start = function (boardString) {
+            return new board(boardString ? boardString : this.defaultBoard);
+        };
+        game.defaultBoard = '{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":{"white":[],"black":[]}}';
+        return game;
+    }());
+    Tchess.game = game;
+})(Tchess || (Tchess = {}));
+if (typeof module !== "undefined")
+    module.exports = Tchess;
+//# sourceMappingURL=index.js.map
