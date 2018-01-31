@@ -10,7 +10,7 @@
     "name": "Alexander Kindziora",
     "web": "https://github.com/kindziora"
   },
-  "main": "./build/index.js",
+  "main": "build/index.js",
   "devDependencies": {
     "circular-json": "^0.5.1"
   }
