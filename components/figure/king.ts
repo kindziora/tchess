@@ -6,7 +6,7 @@ namespace Tchess {
     getMoves(): number[][] {
             let moves = super.getMoves();
             for(let m in moves){
-                let move = moves[m].join(',');
+                let move = moves[m].position.join(',');
                 let opponent = (this.color === 'black') ? 'white' : 'black' ;
                 if(this.board.territory[opponent].indexOf(move) !== -1){
                     moves[m].movable = false;

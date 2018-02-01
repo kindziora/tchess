@@ -175,7 +175,7 @@ var Tchess;
         king.prototype.getMoves = function () {
             var moves = _super.prototype.getMoves.call(this);
             for (var m in moves) {
-                var move = moves[m].join(',');
+                var move = moves[m].position.join(',');
                 var opponent = (this.color === 'black') ? 'white' : 'black';
                 if (this.board.territory[opponent].indexOf(move) !== -1) {
                     moves[m].movable = false;
