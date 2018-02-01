@@ -339,7 +339,7 @@ var board = /** @class */ (function () {
                     this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
                 }
                 else {
-                    this.fields[x][y] = false;
+                    this.fields[y][x] = false;
                 }
             }
         }

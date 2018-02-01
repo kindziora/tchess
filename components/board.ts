@@ -87,6 +87,7 @@ class board {
     loadFromJson(jso: string): void{
         let imp = JSON.parse(jso);
         this.fields = JSON.parse(CircularJSON.stringify(imp.fields));
+ 
         for(let y = 0; y < imp.fields.length; y++) {
             for(let x = 0; x < imp.fields.length; x++) {
                 if(typeof imp.fields[y][x].type !== "undefined"){
@@ -98,7 +99,7 @@ class board {
                     this.fields[y][x].getMoves();
                     this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
                 }else{
-                    this.fields[x][y] = false; 
+                    this.fields[y][x] = false; 
                 }
             }
         }
