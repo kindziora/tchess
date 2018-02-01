@@ -70,10 +70,8 @@ class board {
 
     getAsJson(): string{
         let temp = JSON.parse(CircularJSON.stringify(this.fields));
-
-        for(let x = 0; x < this.fields.length; x++) {
-            for(let y = 0; y < this.fields.length; y++) {
-
+        for(let y = 0; y < this.fields.length; y++) {
+            for(let x = 0; x < this.fields.length; x++) {
                 if(typeof this.fields[y][x] !== "undefined"){
                     temp[y][x] = {
                         type : !this.fields[y][x] ? false : this.fields[y][x].constructor.name,
@@ -88,9 +86,9 @@ class board {
 
     loadFromJson(jso: string): void{
         let imp = JSON.parse(jso);
-        this.fields = JSON.parse(CircularJSON.stringify(imp.fields))
-        for(let x = 0; x < imp.fields.length; x++) {
-            for(let y = 0; y < imp.fields.length; y++) {
+        this.fields = JSON.parse(CircularJSON.stringify(imp.fields));
+        for(let y = 0; y < imp.fields.length; y++) {
+            for(let x = 0; x < imp.fields.length; x++) {
                 if(typeof imp.fields[y][x].type !== "undefined"){
                      this.fields[y][x] = new Tchess[imp.fields[y][x].type](
                         imp.fields[y][x].color,
