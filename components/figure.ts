@@ -47,9 +47,7 @@ class figure {
         if(typeof field === "undefined"){
             result.movable = false;
             result.info = "out of range";
-        }
-        
-        if(typeof field.name !== "undefined") {
+        }else if(typeof field.name !== "undefined") {
             if(field.color === this.color){
                 result.movable = false;
                 result.info = "eigene Figur";
