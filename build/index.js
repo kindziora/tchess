@@ -211,19 +211,24 @@ var Tchess;
             _this.position = position;
             _this.board = board;
             _this.name = "Bauer";
-            _this.steps = [[0, 1]];
+            _this.steps = [[0, 1], [1, 1], [-1, 1]];
             if (_this.color === "black") {
-                _this.steps = [[0, -1]];
+                _this.steps = [[0, -1], [1, -1], [-1, -1]];
             }
             return _this;
         }
         pawn.prototype.getMoves = function () {
             var moves = _super.prototype.getMoves.call(this);
+            var me = this;
             var starter = (this.color === "white") ? 1 : 6;
             var direction = (this.color === "white") ? 2 : -2;
             if (this.position[1] == starter) {
                 moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
             }
+            moves = moves.filter(function (e) {
+                return !(me.position[0] !== e.position[0] && e.info !== "gegner schlagen") &&
+                    !(me.position[1] !== e.position[1] && e.info === "gegner schlagen");
+            });
             return moves;
         };
         return pawn;
