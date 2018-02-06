@@ -24,10 +24,10 @@ namespace Tchess {
             if (this.position[1] == starter) {
                 moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
             }
-
-            return moves.filter((e) => 
+            let m =  moves.filter((e) => 
             !(me.position[0] !== e.position[0] && e.info !== "gegner schlagen") &&
             !(me.position[1] !== e.position[1] && e.info === "gegner schlagen"));
+            return m;
         }
 
     }
