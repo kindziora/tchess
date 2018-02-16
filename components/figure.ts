@@ -1,7 +1,7 @@
 class figure {
 
     public name: string = "figure";
-    public steps: Array<Array<number>> = [ [0,1] ];
+    public steps: Array<Array<number>> = [ [] ];
     public _buildSteps: Array<Array<number>> = []; 
     public intent: Intent;
     public color: string;
@@ -89,10 +89,11 @@ class figure {
 
     public getMoves(): number[][]{
         let moves = [];
-        let steps = this.steps.concat(...this.generateSteps(this.position));
+        let steps = this.steps.concat(this.generateSteps(this.position));
+        let plain;
         this.plainmoves = [];
         for(let m in steps){ 
-            let plain = [
+             plain = [
                 this.position[0] + steps[m][0], 
                 this.position[1] + steps[m][1]
             ];

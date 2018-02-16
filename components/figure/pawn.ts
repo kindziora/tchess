@@ -15,7 +15,7 @@ namespace Tchess {
             }
         }
 
-        getMoves(): number[][] {
+        public getMoves(): number[][] {
             let moves = super.getMoves();
             let me = this;
             let starter = (this.color === "white") ? 1 : 6;

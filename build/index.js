@@ -63,7 +63,7 @@ var figure = /** @class */ (function () {
         this.position = position;
         this.board = board;
         this.name = "figure";
-        this.steps = [[0, 1]];
+        this.steps = [[]];
         this._buildSteps = [];
         this.color = (color === 0) ? 'black' : 'white';
     }
@@ -130,10 +130,11 @@ var figure = /** @class */ (function () {
     };
     figure.prototype.getMoves = function () {
         var moves = [];
-        var steps = (_a = this.steps).concat.apply(_a, this.generateSteps(this.position));
+        var steps = this.steps.concat(this.generateSteps(this.position));
+        var plain;
         this.plainmoves = [];
         for (var m in steps) {
-            var plain = [
+            plain = [
                 this.position[0] + steps[m][0],
                 this.position[1] + steps[m][1]
             ];
@@ -144,7 +145,6 @@ var figure = /** @class */ (function () {
             }
         }
         return moves;
-        var _a;
     };
     return figure;
 }());
