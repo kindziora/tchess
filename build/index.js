@@ -195,7 +195,7 @@ var Tchess;
         function knight() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "Pferd";
-            _this._buildSteps = [[1, 2], [2, 1], [-2, 1], [2, -1], [-1, 2], [1, -2], [-1, -2], [-2, -1]];
+            _this.steps = [[1, 2], [2, 1], [-2, 1], [2, -1], [-1, 2], [1, -2], [-1, -2], [-2, -1]];
             return _this;
         }
         return knight;
