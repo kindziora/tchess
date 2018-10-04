@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -338,7 +341,7 @@ var board = /** @class */ (function () {
         this.fields = JSON.parse(CircularJSON.stringify(imp.fields));
         for (var y = 0; y < imp.fields.length; y++) {
             for (var x = 0; x < imp.fields.length; x++) {
-                if (typeof imp.fields[y][x].type !== "undefined") {
+                if (typeof imp.fields[y][x].type !== "undefined" && this.fields[y][x]) {
                     this.fields[y][x] = new Tchess[imp.fields[y][x].type](imp.fields[y][x].color, [x, y], this);
                     this.fields[y][x].getMoves();
                     this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
