@@ -69,7 +69,7 @@ class board {
     }
 
     getAsJson(): string{
-        let temp = JSON.parse(CircularJSON.stringify(this.fields));
+        let temp = Flatted.parse(Flatted.stringify(this.fields));
         for(let y = 0; y < this.fields.length; y++) {
             for(let x = 0; x < this.fields.length; x++) {
                 if(typeof this.fields[y][x] !== "undefined"){
@@ -81,12 +81,13 @@ class board {
             }
         }
        
-        return CircularJSON.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
+        return Flatted.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
     }
 
     loadFromJson(jso: string): void{
-        let imp = JSON.parse(jso);
-        this.fields = JSON.parse(CircularJSON.stringify(imp.fields));
+        
+        let imp = Flatted.parse(jso);
+        this.fields = Flatted.parse(Flatted.stringify(imp.fields));
  
         for(let y = 0; y < imp.fields.length; y++) {
             for(let x = 0; x < imp.fields.length; x++) {

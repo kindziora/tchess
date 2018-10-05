@@ -8,7 +8,8 @@
         "allowJs" : true
     },
     "files" : [
-        "node_modules/circular-json/build/circular-json.js",
+       // "node_modules/circular-json/build/circular-json.js",
+        "node_modules/flatted/index.js",
         "components/interfaces/intent.ts",
         "components/figure.ts"
     ],

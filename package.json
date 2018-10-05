@@ -12,6 +12,7 @@
   },
   "main": "build/index.js",
   "devDependencies": {
-    "circular-json": "^0.5.7"
+    "circular-json": "^0.5.7",
+    "flatted": "latest"
   }
 }

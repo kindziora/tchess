@@ -11,59 +11,97 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-/*! (C) WebReflection Mit Style License */
-var CircularJSON = function (JSON, RegExp) { var specialChar = "~", safeSpecialChar = "\\x" + ("0" + specialChar.charCodeAt(0).toString(16)).slice(-2), escapedSafeSpecialChar = "\\" + safeSpecialChar, specialCharRG = new RegExp(safeSpecialChar, "g"), safeSpecialCharRG = new RegExp(escapedSafeSpecialChar, "g"), safeStartWithSpecialCharRG = new RegExp("(?:^|([^\\\\]))" + escapedSafeSpecialChar), indexOf = [].indexOf || function (v) { for (var i = this.length; i-- && this[i] !== v;)
-    ; return i; }, $String = String; function generateReplacer(value, replacer, resolve) { var doNotIgnore = false, inspect = !!replacer, path = [], all = [value], seen = [value], mapp = [resolve ? specialChar : "[Circular]"], last = value, lvl = 1, i, fn; if (inspect) {
-    fn = typeof replacer === "object" ? function (key, value) { return key !== "" && replacer.indexOf(key) < 0 ? void 0 : value; } : replacer;
-} return function (key, value) { if (inspect)
-    value = fn.call(this, key, value); if (doNotIgnore) {
-    if (last !== this) {
-        i = lvl - indexOf.call(all, this) - 1;
-        lvl -= i;
-        all.splice(lvl, all.length);
-        path.splice(lvl - 1, path.length);
-        last = this;
-    }
-    if (typeof value === "object" && value) {
-        if (indexOf.call(all, value) < 0) {
-            all.push(last = value);
-        }
-        lvl = all.length;
-        i = indexOf.call(seen, value);
-        if (i < 0) {
-            i = seen.push(value) - 1;
-            if (resolve) {
-                path.push(("" + key).replace(specialCharRG, safeSpecialChar));
-                mapp[i] = specialChar + path.join(specialChar);
+var Flatted = (function (Primitive, primitive) {
+    /*!
+     * ISC License
+     *
+     * Copyright (c) 2018, Andrea Giammarchi, @WebReflection
+     *
+     * Permission to use, copy, modify, and/or distribute this software for any
+     * purpose with or without fee is hereby granted, provided that the above
+     * copyright notice and this permission notice appear in all copies.
+     *
+     * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+     * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+     * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+     * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+     * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+     * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+     * PERFORMANCE OF THIS SOFTWARE.
+     */
+    var Flatted = {
+        parse: function parse(text, reviver) {
+            var input = JSON.parse(text, Primitives).map(primitives);
+            var value = input[0];
+            var $ = reviver || noop;
+            return $('', typeof value === 'object' && value ?
+                revive(input, new Set, value, $) :
+                value);
+        },
+        stringify: function stringify(value, replacer, space) {
+            for (var firstRun, known = new Map, input = [], output = [], $ = replacer && typeof replacer === typeof input ?
+                function (k, v) {
+                    if (k === '' || -1 < replacer.indexOf(k))
+                        return v;
+                } :
+                (replacer || noop), i = +set(known, input, $('', value)), replace = function (key, value) {
+                if (firstRun) {
+                    firstRun = !firstRun;
+                    return i < 1 ? value : $(key, value);
+                }
+                var after = $(key, value);
+                switch (typeof after) {
+                    case 'object':
+                        if (after === null)
+                            return after;
+                    case primitive:
+                        return known.get(after) || set(known, input, after);
+                }
+                return after;
+            }; i < input.length; i++) {
+                firstRun = true;
+                output[i] = JSON.stringify(input[i], replace, space);
             }
-            else {
-                mapp[i] = mapp[0];
+            return '[' + output.join(',') + ']';
+        }
+    };
+    return Flatted;
+    function noop(key, value) {
+        return value;
+    }
+    function revive(input, parsed, output, $) {
+        return Object.keys(output).reduce(function (output, key) {
+            var value = output[key];
+            if (value instanceof Primitive) {
+                var tmp = input[value];
+                if (typeof tmp === 'object' && !parsed.has(tmp)) {
+                    parsed.add(tmp);
+                    output[key] = $(key, revive(input, parsed, tmp, $));
+                }
+                else {
+                    output[key] = $(key, tmp);
+                }
             }
-        }
-        else {
-            value = mapp[i];
-        }
+            else
+                output[key] = $(key, value);
+            return output;
+        }, output);
     }
-    else {
-        if (typeof value === "string" && resolve) {
-            value = value.replace(safeSpecialChar, escapedSafeSpecialChar).replace(specialChar, safeSpecialChar);
-        }
+    function set(known, input, value) {
+        var index = Primitive(input.push(value) - 1);
+        known.set(value, index);
+        return index;
     }
-}
-else {
-    doNotIgnore = true;
-} return value; }; } function retrieveFromPath(current, keys) { for (var i = 0, length = keys.length; i < length; current = current[keys[i++].replace(safeSpecialCharRG, specialChar)])
-    ; return current; } function generateReviver(reviver) { return function (key, value) { var isString = typeof value === "string"; if (isString && value.charAt(0) === specialChar) {
-    return new $String(value.slice(1));
-} if (key === "")
-    value = regenerate(value, value, {}); if (isString)
-    value = value.replace(safeStartWithSpecialCharRG, "$1" + specialChar).replace(escapedSafeSpecialChar, safeSpecialChar); return reviver ? reviver.call(this, key, value) : value; }; } function regenerateArray(root, current, retrieve) { for (var i = 0, length = current.length; i < length; i++) {
-    current[i] = regenerate(root, current[i], retrieve);
-} return current; } function regenerateObject(root, current, retrieve) { for (var key in current) {
-    if (current.hasOwnProperty(key)) {
-        current[key] = regenerate(root, current[key], retrieve);
+    // the two kinds of primitives
+    //  1. the real one
+    //  2. the wrapped one
+    function primitives(value) {
+        return value instanceof Primitive ? Primitive(value) : value;
     }
-} return current; } function regenerate(root, current, retrieve) { return current instanceof Array ? regenerateArray(root, current, retrieve) : current instanceof $String ? current.length ? retrieve.hasOwnProperty(current) ? retrieve[current] : retrieve[current] = retrieveFromPath(root, current.split(specialChar)) : root : current instanceof Object ? regenerateObject(root, current, retrieve) : current; } var CircularJSON = { stringify: function stringify(value, replacer, space, doNotResolve) { return CircularJSON.parser.stringify(value, generateReplacer(value, replacer, !doNotResolve), space); }, parse: function parse(text, reviver) { return CircularJSON.parser.parse(text, generateReviver(reviver)); }, parser: JSON }; return CircularJSON; }(JSON, RegExp);
+    function Primitives(key, value) {
+        return typeof value === primitive ? new Primitive(value) : value;
+    }
+}(String, 'string'));
 var figure = /** @class */ (function () {
     function figure(color, position, board) {
         this.position = position;
@@ -326,7 +364,7 @@ var board = /** @class */ (function () {
         return intent;
     };
     board.prototype.getAsJson = function () {
-        var temp = JSON.parse(CircularJSON.stringify(this.fields));
+        var temp = Flatted.parse(Flatted.stringify(this.fields));
         for (var y = 0; y < this.fields.length; y++) {
             for (var x = 0; x < this.fields.length; x++) {
                 if (typeof this.fields[y][x] !== "undefined") {
@@ -337,11 +375,11 @@ var board = /** @class */ (function () {
                 }
             }
         }
-        return CircularJSON.stringify({ "fields": temp, "lost": this.lost, "moves": this.moves });
+        return Flatted.stringify({ "fields": temp, "lost": this.lost, "moves": this.moves });
     };
     board.prototype.loadFromJson = function (jso) {
-        var imp = JSON.parse(jso);
-        this.fields = JSON.parse(CircularJSON.stringify(imp.fields));
+        var imp = Flatted.parse(jso);
+        this.fields = Flatted.parse(Flatted.stringify(imp.fields));
         for (var y = 0; y < imp.fields.length; y++) {
             for (var x = 0; x < imp.fields.length; x++) {
                 if (typeof imp.fields[y][x].type !== "undefined" && typeof imp.fields[y][x].type.length !== "undefined") {
@@ -367,7 +405,7 @@ var Tchess;
         game.start = function (boardString) {
             return new board(boardString ? boardString : this.defaultBoard);
         };
-        game.defaultBoard = '{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":{"white":[],"black":[]}}';
+        game.defaultBoard = '[{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":{"white":[],"black":[]}}]';
         return game;
     }());
     Tchess.game = game;
