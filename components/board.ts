@@ -90,7 +90,7 @@ class board {
  
         for(let y = 0; y < imp.fields.length; y++) {
             for(let x = 0; x < imp.fields.length; x++) {
-                if(typeof imp.fields[y][x].type !== "undefined" || imp.fields[y][x].type){
+                if(typeof imp.fields[y][x].type !== "undefined" && typeof imp.fields[y][x].type.length !== "undefined"){
                      this.fields[y][x] = new Tchess[imp.fields[y][x].type](
                         imp.fields[y][x].color,
                         [x,y],
