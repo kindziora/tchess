@@ -382,7 +382,7 @@ var board = /** @class */ (function () {
         this.fields = Flatted.parse(Flatted.stringify(imp.fields));
         for (var y = 0; y < imp.fields.length; y++) {
             for (var x = 0; x < imp.fields.length; x++) {
-                if (typeof imp.fields[y][x].type !== "undefined" && typeof imp.fields[y][x].type.length !== "undefined") {
+                if (typeof imp.fields[y][x].type !== "undefined" && imp.fields[y][x].type) {
                     this.fields[y][x] = new Tchess[imp.fields[y][x].type](imp.fields[y][x].color, [x, y], this);
                     this.fields[y][x].getMoves();
                     this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
