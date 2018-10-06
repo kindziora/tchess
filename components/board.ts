@@ -80,8 +80,18 @@ class board {
                 } 
             }
         }
+
+        let lost = {"black" : [], "white" : []};
+        for(let e in ["black", "white"]) {
+            for(let i in this.lost[e]) {
+                lost[e][i] = {
+                    type : this.lost[e][i].constructor.name,
+                    color :  (this.lost[e][i].color  === 'black') ? 0 : 1
+                }
+            }
+        }
        
-        return JSON.stringify([{"fields" : temp, "lost" : this.lost, "moves": this.moves}]);
+        return JSON.stringify([{"fields" : temp, "lost" : lost, "moves": this.moves}]);
     }
 
     loadFromJson(jso: string): void{
@@ -105,7 +115,20 @@ class board {
             }
         }
         this.moves = imp.moves;
-        this.lost = imp.lost;
+
+        let lost = {"black" : [], "white" : []};
+
+        for(let e in ["black", "white"]) {
+            for(let i in imp.lost[e]) {
+                lost[e][i] = new Tchess[imp.lost[e][i].type](
+                        imp.lost[e][i].color,
+                        [0,0],
+                        this
+                    );
+            }
+        }
+    
+        this.lost = lost;
     }
    
 }

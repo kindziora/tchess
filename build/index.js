@@ -372,7 +372,16 @@ var board = /** @class */ (function () {
                 }
             }
         }
-        return JSON.stringify([{ "fields": temp, "lost": this.lost, "moves": this.moves }]);
+        var lost = { "black": [], "white": [] };
+        for (var e in ["black", "white"]) {
+            for (var i in this.lost[e]) {
+                lost[e][i] = {
+                    type: this.lost[e][i].constructor.name,
+                    color: (this.lost[e][i].color === 'black') ? 0 : 1
+                };
+            }
+        }
+        return JSON.stringify([{ "fields": temp, "lost": lost, "moves": this.moves }]);
     };
     board.prototype.loadFromJson = function (jso) {
         var imp = Flatted.parse(jso);
@@ -390,7 +399,13 @@ var board = /** @class */ (function () {
             }
         }
         this.moves = imp.moves;
-        this.lost = imp.lost;
+        var lost = { "black": [], "white": [] };
+        for (var e in ["black", "white"]) {
+            for (var i in imp.lost[e]) {
+                lost[e][i] = new Tchess[imp.lost[e][i].type](imp.lost[e][i].color, [0, 0], this);
+            }
+        }
+        this.lost = lost;
     };
     return board;
 }());
