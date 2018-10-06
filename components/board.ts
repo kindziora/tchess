@@ -81,7 +81,7 @@ class board {
             }
         }
        
-        return JSON.stringify({"fields" : temp, "lost" : this.lost, "moves": this.moves});
+        return JSON.stringify([{"fields" : temp, "lost" : this.lost, "moves": this.moves}]);
     }
 
     loadFromJson(jso: string): void{

@@ -372,7 +372,7 @@ var board = /** @class */ (function () {
                 }
             }
         }
-        return JSON.stringify({ "fields": temp, "lost": this.lost, "moves": this.moves });
+        return JSON.stringify([{ "fields": temp, "lost": this.lost, "moves": this.moves }]);
     };
     board.prototype.loadFromJson = function (jso) {
         var imp = Flatted.parse(jso);
