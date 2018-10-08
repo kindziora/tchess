@@ -34,10 +34,15 @@ class figure {
         return intent;
     }
     
+    public moved(position: [number, number]){
+        
+    }
+    
     public isInMovables(position: [number, number]): boolean {
         return this.getMoves().filter((e)=>e.position[0] === position[0] &&
         e.position[1] === position[1] ).length > 0;
     }
+
     public isMovable(position: [number, number]): Intent{
 
         let field = this.board.getFigure(position);

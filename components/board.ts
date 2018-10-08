@@ -39,7 +39,16 @@ class board {
     hasTurn(color: string): boolean {
         return (this.moves.length % 2 === 0) && color === "white" ||  (this.moves.length % 2 > 0) && color === "black";
     }
-    
+
+    /**
+     * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+     * @param type 
+     * @param figure 
+     */
+    onEvent (type: string, figure: any) : any {
+        
+    }
+
     /**
      * 
      * @param from 
@@ -59,6 +68,8 @@ class board {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
+                
+                figure.moved(to);
 
                 this.moves.push([from, to]);
                 this.territory[figure.color].push(figure.plainmoves);

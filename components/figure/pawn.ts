@@ -25,11 +25,22 @@ namespace Tchess {
                 moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
             }
 
-            let m = moves.filter((e) => 
-            (me.position[0] !== e.position[0] && e.info === "gegner schlagen") ||
-            (me.position[0] === e.position[0] && e.info !== "gegner schlagen"));
+            let m = moves.filter((e) =>
+                (me.position[0] !== e.position[0] && e.info === "gegner schlagen") ||
+                (me.position[0] === e.position[0] && e.info !== "gegner schlagen"));
 
             return m;
+        }
+        
+        /**
+         * check if end was reached
+         * @param position 
+         */
+        public moved(position: [number, number]) {
+            let end = (this.color === "white") ? 0 : 7;
+            if(position[1] === end) {
+                this.board.onEvent('pawnReachEnd', this);
+            }
         }
 
     }

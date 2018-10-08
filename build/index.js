@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -122,6 +125,8 @@ var figure = /** @class */ (function () {
             this.position = position;
         }
         return intent;
+    };
+    figure.prototype.moved = function (position) {
     };
     figure.prototype.isInMovables = function (position) {
         return this.getMoves().filter(function (e) { return e.position[0] === position[0] &&
@@ -272,6 +277,16 @@ var Tchess;
             });
             return m;
         };
+        /**
+         * check if end was reached
+         * @param position
+         */
+        pawn.prototype.moved = function (position) {
+            var end = (this.color === "white") ? 0 : 7;
+            if (position[1] === end) {
+                this.board.onEvent('pawnReachEnd', this);
+            }
+        };
         return pawn;
     }(figure));
     Tchess.pawn = pawn;
@@ -338,6 +353,13 @@ var board = /** @class */ (function () {
         return (this.moves.length % 2 === 0) && color === "white" || (this.moves.length % 2 > 0) && color === "black";
     };
     /**
+     * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+     * @param type
+     * @param figure
+     */
+    board.prototype.onEvent = function (type, figure) {
+    };
+    /**
      *
      * @param from
      * @param to
@@ -354,6 +376,7 @@ var board = /** @class */ (function () {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
+                figure.moved(to);
                 this.moves.push([from, to]);
                 this.territory[figure.color].push(figure.plainmoves);
             }
