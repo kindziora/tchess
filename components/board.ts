@@ -68,7 +68,7 @@ class board {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
-                
+
                 figure.moved(to);
 
                 this.moves.push([from, to]);
@@ -77,6 +77,17 @@ class board {
         }
 
         return intent;
+    }
+
+    reviveFigure(color: string, index: number, to : [number, number]) : any{
+        let figureToReplace = this.getFigure(to);
+
+        if(figureToReplace.type === 'pawn' && figureToReplace.changePossible){
+            //change
+            this.setFigure(to, this.lost[color][index]);
+            this.lost[color] = this.lost[color].splice(index, 1);
+        }
+
     }
 
     getAsJson(): string{

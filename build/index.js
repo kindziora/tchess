@@ -257,6 +257,7 @@ var Tchess;
             _this.position = position;
             _this.board = board;
             _this.name = "Bauer";
+            _this.changePossible = false;
             _this.steps = [[0, 1], [1, 1], [-1, 1]];
             if (_this.color === "black") {
                 _this.steps = [[0, -1], [1, -1], [-1, -1]];
@@ -285,6 +286,7 @@ var Tchess;
             var end = (this.color === "white") ? 0 : 7;
             if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
+                this.changePossible = true;
             }
         };
         return pawn;
@@ -382,6 +384,14 @@ var board = /** @class */ (function () {
             }
         }
         return intent;
+    };
+    board.prototype.reviveFigure = function (color, index, to) {
+        var figureToReplace = this.getFigure(to);
+        if (figureToReplace.type === 'pawn' && figureToReplace.changePossible) {
+            //change
+            this.setFigure(to, this.lost[color][index]);
+            this.lost[color] = this.lost[color].splice(index, 1);
+        }
     };
     board.prototype.getAsJson = function () {
         var temp = Flatted.parse(Flatted.stringify(this.fields));

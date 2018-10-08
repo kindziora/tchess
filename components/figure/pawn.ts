@@ -1,6 +1,7 @@
 namespace Tchess {
     export class pawn extends figure {
         public name: string = "Bauer";
+        public changePossible: boolean = false;
         public steps: Array<Array<number>> = [[0, 1], [1, 1], [-1, 1]];
 
         constructor(
@@ -31,7 +32,7 @@ namespace Tchess {
 
             return m;
         }
-        
+
         /**
          * check if end was reached
          * @param position 
@@ -40,6 +41,7 @@ namespace Tchess {
             let end = (this.color === "white") ? 0 : 7;
             if(position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
+                this.changePossible = true;
             }
         }
 
