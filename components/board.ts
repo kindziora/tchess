@@ -1,6 +1,12 @@
 class board {
     public fields: Array<Array<any>>;
     public moves: Array<Array<any>>;
+
+    public color: object = {
+        "white": "username1",
+        "black": "username2"
+    };
+
     public lost: object = {
         "white": [],
         "black": []
@@ -10,7 +16,6 @@ class board {
         "white": [],
         "black": []
     };
-
 
     /**
      * 
@@ -102,14 +107,14 @@ class board {
                 } 
             }
         }
-
+        let colors = ["black", "white"];
         let lost = {"black" : [], "white" : []};
-        for(let e in ["black", "white"]) {
-            for(let i in this.lost[e]) {
-                lost[e][i] = {
-                    type : this.lost[e][i].constructor.name,
-                    color :  (this.lost[e][i].color  === 'black') ? 0 : 1
-                }
+        for(let e in colors) {
+            for(let i in this.lost[colors[e]]) {
+                lost[colors[e]].push({
+                    type : this.lost[colors[e]][i].constructor.name,
+                    color :  (this.lost[colors[e]][i].color  === 'black') ? 0 : 1
+                });
             }
         }
        
@@ -139,11 +144,12 @@ class board {
         this.moves = imp.moves;
 
         let lost = {"black" : [], "white" : []};
-
-        for(let e in ["black", "white"]) {
-            for(let i in imp.lost[e]) {
-                lost[e][i] = new Tchess[imp.lost[e][i].type](
-                        imp.lost[e][i].color,
+        let colors = ["black", "white"];
+        for(let e in colors) {
+            let ei = colors[e];
+            for(let i in imp.lost[ei]) {
+                lost[ei][i] = new Tchess[imp.lost[ei][i].type](
+                        imp.lost[ei][i].color,
                         [0,0],
                         this
                     );

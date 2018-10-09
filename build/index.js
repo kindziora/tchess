@@ -327,6 +327,10 @@ var board = /** @class */ (function () {
      * @param json
      */
     function board(json) {
+        this.color = {
+            "white": "username1",
+            "black": "username2"
+        };
         this.lost = {
             "white": [],
             "black": []
@@ -405,13 +409,14 @@ var board = /** @class */ (function () {
                 }
             }
         }
+        var colors = ["black", "white"];
         var lost = { "black": [], "white": [] };
-        for (var e in ["black", "white"]) {
-            for (var i in this.lost[e]) {
-                lost[e][i] = {
-                    type: this.lost[e][i].constructor.name,
-                    color: (this.lost[e][i].color === 'black') ? 0 : 1
-                };
+        for (var e in colors) {
+            for (var i in this.lost[colors[e]]) {
+                lost[colors[e]].push({
+                    type: this.lost[colors[e]][i].constructor.name,
+                    color: (this.lost[colors[e]][i].color === 'black') ? 0 : 1
+                });
             }
         }
         return JSON.stringify([{ "fields": temp, "lost": lost, "moves": this.moves }]);
@@ -433,9 +438,11 @@ var board = /** @class */ (function () {
         }
         this.moves = imp.moves;
         var lost = { "black": [], "white": [] };
-        for (var e in ["black", "white"]) {
-            for (var i in imp.lost[e]) {
-                lost[e][i] = new Tchess[imp.lost[e][i].type](imp.lost[e][i].color, [0, 0], this);
+        var colors = ["black", "white"];
+        for (var e in colors) {
+            var ei = colors[e];
+            for (var i in imp.lost[ei]) {
+                lost[ei][i] = new Tchess[imp.lost[ei][i].type](imp.lost[ei][i].color, [0, 0], this);
             }
         }
         this.lost = lost;
