@@ -283,7 +283,8 @@ var Tchess;
          * @param position
          */
         pawn.prototype.moved = function (position) {
-            var end = (this.color === "white") ? 0 : 7;
+            _super.prototype.moved.call(this, position);
+            var end = (this.color === "white") ? 7 : 0;
             if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
@@ -328,8 +329,8 @@ var board = /** @class */ (function () {
      */
     function board(json) {
         this.color = {
-            "white": "username1",
-            "black": "username2"
+            "white": null,
+            "black": null
         };
         this.lost = {
             "white": [],
@@ -364,6 +365,7 @@ var board = /** @class */ (function () {
      * @param figure
      */
     board.prototype.onEvent = function (type, figure) {
+        console.log(type, figure);
     };
     /**
      *
@@ -419,7 +421,7 @@ var board = /** @class */ (function () {
                 });
             }
         }
-        return JSON.stringify([{ "fields": temp, "lost": lost, "moves": this.moves }]);
+        return JSON.stringify([{ "fields": temp, "lost": lost, "moves": this.moves, "color": this.color }]);
     };
     board.prototype.loadFromJson = function (jso) {
         var imp = Flatted.parse(jso);
@@ -445,6 +447,7 @@ var board = /** @class */ (function () {
                 lost[ei][i] = new Tchess[imp.lost[ei][i].type](imp.lost[ei][i].color, [0, 0], this);
             }
         }
+        this.color = imp.color;
         this.lost = lost;
     };
     return board;
@@ -457,7 +460,7 @@ var Tchess;
         game.start = function (boardString) {
             return new board(boardString ? boardString : this.defaultBoard);
         };
-        game.defaultBoard = '[{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":{"white":[],"black":[]}}]';
+        game.defaultBoard = '[{"fields":[[{"color":1,"type":"tower"},{"color":1,"type":"knight"},{"color":1,"type":"bishop"},{"color":1,"type":"queen"},{"color":1,"type":"king"},{"color":1,"type":"bishop"},{"color":1,"type":"knight"},{"color":1,"type":"tower"}],[{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"},{"color":1,"type":"pawn"}],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false],[{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"},{"color":0,"type":"pawn"}],[{"color":0,"type":"tower"},{"color":0,"type":"knight"},{"color":0,"type":"bishop"},{"color":0,"type":"queen"},{"color":0,"type":"king"},{"color":0,"type":"bishop"},{"color":0,"type":"knight"},{"color":0,"type":"tower"}]],"moves":[],"lost":{"white":[],"black":[]},"color":{"white":false,"black":false}}]';
         return game;
     }());
     Tchess.game = game;

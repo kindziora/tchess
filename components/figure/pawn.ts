@@ -38,7 +38,8 @@ namespace Tchess {
          * @param position 
          */
         public moved(position: [number, number]) {
-            let end = (this.color === "white") ? 0 : 7;
+            super.moved(position);
+            let end = (this.color === "white") ? 7 : 0;
             if(position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;

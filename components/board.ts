@@ -3,8 +3,8 @@ class board {
     public moves: Array<Array<any>>;
 
     public color: object = {
-        "white": "username1",
-        "black": "username2"
+        "white": null,
+        "black": null
     };
 
     public lost: object = {
@@ -51,7 +51,7 @@ class board {
      * @param figure 
      */
     onEvent (type: string, figure: any) : any {
-        
+        console.log(type, figure);
     }
 
     /**
@@ -118,7 +118,7 @@ class board {
             }
         }
        
-        return JSON.stringify([{"fields" : temp, "lost" : lost, "moves": this.moves}]);
+        return JSON.stringify([{"fields" : temp, "lost" : lost, "moves": this.moves, "color" : this.color}]);
     }
 
     loadFromJson(jso: string): void{
@@ -155,7 +155,7 @@ class board {
                     );
             }
         }
-    
+        this.color = imp.color;
         this.lost = lost;
     }
    
