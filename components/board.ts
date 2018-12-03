@@ -135,7 +135,7 @@ class board {
                         this
                     );
                     this.fields[y][x].getMoves();
-                    this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
+                    this.territory[this.fields[y][x].color].push(this.fields[y][x].getPlainmoves());
                 }else{
                     this.fields[y][x] = false; 
                 }

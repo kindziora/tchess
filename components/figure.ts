@@ -5,7 +5,7 @@ class figure {
     public _buildSteps: Array<Array<number>> = []; 
     public intent: Intent;
     public color: string;
-    public plainmoves: Array<Array<number>>;
+    public plainmoves: Array<string>;
 
     constructor(
         color: number, 
@@ -92,7 +92,7 @@ class figure {
         return s;
     }
 
-    public getMoves(): number[][]{
+    public getMoves(): Array<Intent>{
         let moves = [];
         let steps = this.steps.concat(this.generateSteps(this.position));
         let plain;
@@ -111,4 +111,17 @@ class figure {
         return moves;
     }
 
+    public getPlainmoves(): string[]{
+        let plainmoves = [];
+        let moves = this.getMoves();
+        for(let m in moves){ 
+            let move: Intent = moves[m];
+            plainmoves.push(move.position.join(','));
+        }
+        return plainmoves;
+    }
+
+    public setPlainmoves(moves: string[]){
+        this.plainmoves = moves;
+    }
 }
