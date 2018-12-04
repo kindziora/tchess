@@ -111,6 +111,12 @@ var figure = /** @class */ (function () {
         this._buildSteps = [];
         this.color = (color === 0) ? 'black' : 'white';
     }
+    /**
+     *
+     */
+    figure.prototype.getOpponentsColor = function () {
+        return (this.color === 'black') ? 'white' : 'black';
+    };
     figure.prototype.move = function (position) {
         var intent = this.isMovable(position);
         if (!this.isInMovables(position)) {
@@ -192,6 +198,39 @@ var figure = /** @class */ (function () {
         }
         return moves;
     };
+    figure.prototype.getPlainmoves = function () {
+        var plainmoves = [];
+        var moves = this.getMoves();
+        for (var m in moves) {
+            var move = moves[m];
+            plainmoves.push(move.position.join(','));
+        }
+        return plainmoves;
+    };
+    figure.prototype.setPlainmoves = function (moves) {
+        this.plainmoves = moves;
+    };
+    /**
+     *
+     */
+    figure.prototype.canMove = function () {
+        var moves = this.getMoves();
+        for (var m in moves) {
+            if (moves[m].movable) {
+                return true;
+            }
+        }
+        return false;
+    };
+    /**
+     *
+     * @param position
+     */
+    figure.prototype.positionInDangerBy = function (position) {
+        var opponent = this.getOpponentsColor();
+        var areal = this.board.territory[opponent];
+        return areal[this.position.join(',')];
+    };
     return figure;
 }());
 var Tchess;
@@ -222,10 +261,10 @@ var Tchess;
             var moves = _super.prototype.getMoves.call(this);
             for (var m in moves) {
                 var move = moves[m].position.join(',');
-                var opponent = (this.color === 'black') ? 'white' : 'black';
-                if (this.board.territory[opponent].indexOf(move) !== -1) {
+                var opponent = this.getOpponentsColor();
+                if (this.positionInDangerBy(moves[m].position)) {
                     moves[m].movable = false;
-                    moves[m].info = "spieler im schach";
+                    moves[m].info = "Spieler im Schach";
                 }
             }
             return moves;
@@ -337,11 +376,29 @@ var board = /** @class */ (function () {
             "black": []
         };
         this.territory = {
-            "white": [],
-            "black": []
+            "white": {},
+            "black": {}
         };
+        this.winner = null;
+        this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [] };
         this.loadFromJson(json);
+        this.on('checkmate', function (figure) {
+            this.setWinner(this.color[figure.getOpponentsColor()]);
+        });
     }
+    /**
+     *
+     */
+    board.prototype.getWinner = function () {
+        return this.winner;
+    };
+    /**
+     *
+     * @param winner
+     */
+    board.prototype.setWinner = function (winner) {
+        this.winner = winner;
+    };
     /**
      *
      * @param position
@@ -359,13 +416,34 @@ var board = /** @class */ (function () {
     board.prototype.hasTurn = function (color) {
         return (this.moves.length % 2 === 0) && color === "white" || (this.moves.length % 2 > 0) && color === "black";
     };
+    board.prototype.hasLost = function (color) {
+        var figures = this.getFigures(color);
+        for (var f in figures) {
+            if (figures[f].canMove()) {
+                return true;
+            }
+        }
+        this.onEvent('checkmate', this.getKing(color));
+        return false;
+    };
     /**
      * events: ['pawnReachEnd','check', 'checkmate', 'castling']
      * @param type
      * @param figure
      */
     board.prototype.onEvent = function (type, figure) {
-        console.log(type, figure);
+        for (var evts in this.events[type]) {
+            this.events[type][evts].call(this, figure);
+        }
+    };
+    /**
+    * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+    */
+    board.prototype.on = function (eventName, callback) {
+        if (typeof this.events[eventName] === "undefined") {
+            this.events[eventName] = [];
+        }
+        this.events[eventName].push(callback);
     };
     /**
      *
@@ -381,24 +459,41 @@ var board = /** @class */ (function () {
             if (intent.movable) {
                 if (kickedFigure) {
                     this.lost[kickedFigure.color].push(kickedFigure);
+                    if (kickedFigure.name === "König") {
+                        this.onEvent('checkmate', kickedFigure);
+                    }
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
                 figure.moved(to);
                 this.moves.push([from, to]);
-                this.territory[figure.color].push(figure.plainmoves);
+                this.setTerritories(this.getTerritories());
+                this.hasLost('black');
+                this.hasLost('white');
             }
         }
         return intent;
     };
+    /**
+     *
+     * @param color
+     * @param index
+     * @param to
+     */
     board.prototype.reviveFigure = function (color, index, to) {
         var figureToReplace = this.getFigure(to);
         if (figureToReplace.type === 'pawn' && figureToReplace.changePossible) {
             //change
             this.setFigure(to, this.lost[color][index]);
             this.lost[color] = this.lost[color].splice(index, 1);
+            this.setTerritories(this.getTerritories());
+            this.hasLost('black');
+            this.hasLost('white');
         }
     };
+    /**
+     *
+     */
     board.prototype.getAsJson = function () {
         var temp = Flatted.parse(Flatted.stringify(this.fields));
         for (var y = 0; y < this.fields.length; y++) {
@@ -423,6 +518,55 @@ var board = /** @class */ (function () {
         }
         return JSON.stringify([{ "fields": temp, "lost": lost, "moves": this.moves, "color": this.color }]);
     };
+    /**
+     *
+     * @param territory
+     */
+    board.prototype.setTerritories = function (territory) {
+        this.territory = territory;
+    };
+    /**
+     *
+     * @param color
+     */
+    board.prototype.getKing = function (color) {
+        return this.getFigures(color).filter(function (f) { return f.name === "König"; })[0];
+    };
+    /**
+     *
+     * @param color
+     */
+    board.prototype.getFigures = function (color) {
+        var figures = [];
+        for (var y = 0; y < this.fields.length; y++) {
+            for (var x = 0; x < this.fields.length; x++) {
+                if (typeof this.fields[y][x].getPlainmoves !== "undefined") {
+                    if (this.fields[y][x].color === color) {
+                        figures.push(this.fields[y][x]);
+                    }
+                }
+            }
+        }
+        return figures;
+    };
+    board.prototype.getTerritories = function () {
+        var territory = {
+            "white": {},
+            "black": {}
+        };
+        for (var y = 0; y < this.fields.length; y++) {
+            for (var x = 0; x < this.fields.length; x++) {
+                if (typeof this.fields[y][x].getPlainmoves !== "undefined") {
+                    var plainmoves = this.fields[y][x].getPlainmoves();
+                    for (var i in plainmoves) {
+                        var pm = plainmoves[i];
+                        territory[this.fields[y][x].color][pm] = [y, x];
+                    }
+                }
+            }
+        }
+        return territory;
+    };
     board.prototype.loadFromJson = function (jso) {
         var imp = Flatted.parse(jso);
         this.fields = Flatted.parse(Flatted.stringify(imp.fields));
@@ -431,7 +575,11 @@ var board = /** @class */ (function () {
                 if (typeof imp.fields[y][x].type !== "undefined" && imp.fields[y][x].type) {
                     this.fields[y][x] = new Tchess[imp.fields[y][x].type](imp.fields[y][x].color, [x, y], this);
                     this.fields[y][x].getMoves();
-                    this.territory[this.fields[y][x].color].push(this.fields[y][x].plainmoves);
+                    var plainmoves = this.fields[y][x].getPlainmoves();
+                    for (var i in plainmoves) {
+                        var pm = plainmoves[i];
+                        this.territory[this.fields[y][x].color][pm] = [y, x];
+                    }
                 }
                 else {
                     this.fields[y][x] = false;

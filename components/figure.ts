@@ -14,6 +14,12 @@ class figure {
     ) {
         this.color = (color === 0) ? 'black' : 'white';
      }
+     /**
+      * 
+      */
+     public getOpponentsColor(){
+        return (this.color === 'black') ? 'white' : 'black';
+     }
 
      public move(position: [number, number]): Intent{
         let intent = this.isMovable(position);
@@ -123,5 +129,28 @@ class figure {
 
     public setPlainmoves(moves: string[]){
         this.plainmoves = moves;
+    }
+
+    /**
+     * 
+     */
+    public canMove(): boolean {
+        let moves = this.getMoves();
+        for(let m in moves){
+            if(moves[m].movable){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * @param position 
+     */
+    public positionInDangerBy(position: Array<number>): object { 
+        let opponent = this.getOpponentsColor();
+        let areal = this.board.territory[opponent]; 
+        return areal[this.position.join(',')];
     }
 }
