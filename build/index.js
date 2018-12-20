@@ -110,6 +110,7 @@ var figure = /** @class */ (function () {
         this.steps = [[]];
         this._buildSteps = [];
         this.color = (color === 0) ? 'black' : 'white';
+        this.fenCode = (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode;
     }
     /**
      *
@@ -340,6 +341,7 @@ var Tchess;
         function queen() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "Dame";
+            _this.fenCode = "q";
             _this._buildSteps = [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [0, 1], [-1, 0], [0, -1]];
             return _this;
         }
@@ -354,6 +356,7 @@ var Tchess;
         function tower() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "Turm";
+            _this.fenCode = "r";
             _this._buildSteps = [[1, 0], [0, 1], [-1, 0], [0, -1]];
             return _this;
         }
