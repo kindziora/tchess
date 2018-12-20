@@ -306,5 +306,23 @@ class board {
         return FEN.join('/') + `${this.hasTurn('white') ? 'w' : 'b'} KQkq - 0 ${this.moves.length}`;
     };
 
+    fenMoveToBoardMove(positionMove:string): number[][]{
+        positionMove = "e2e3";
+
+        var middle = Math.ceil(positionMove.length / 2);
+        var from = positionMove.slice(0, middle);
+        var to = positionMove.slice(middle);
+         console.log(from,to);
+ 
+         return [this.fenToArrayCoordinates(from), this.fenToArrayCoordinates(to)];
+    }
+
+    fenToArrayCoordinates(positionString:string): number[]{
+        function alphabetPosition(text) {
+            return [...text].map(a => parseInt(a, 36) - 10).filter(a => a >= 0)[0];
+        }
+        return [alphabetPosition(positionString[0]), parseInt(positionString[1])];
+    }
+
 
 }

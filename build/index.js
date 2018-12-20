@@ -633,6 +633,20 @@ var board = /** @class */ (function () {
         return FEN.join('/') + ((this.hasTurn('white') ? 'w' : 'b') + " KQkq - 0 " + this.moves.length);
     };
     ;
+    board.prototype.fenMoveToBoardMove = function (positionMove) {
+        positionMove = "e2e3";
+        var middle = Math.ceil(positionMove.length / 2);
+        var from = positionMove.slice(0, middle);
+        var to = positionMove.slice(middle);
+        console.log(from, to);
+        return [this.fenToArrayCoordinates(from), this.fenToArrayCoordinates(to)];
+    };
+    board.prototype.fenToArrayCoordinates = function (positionString) {
+        function alphabetPosition(text) {
+            return text.slice().map(function (a) { return parseInt(a, 36) - 10; }).filter(function (a) { return a >= 0; })[0];
+        }
+        return [alphabetPosition(positionString[0]), parseInt(positionString[1])];
+    };
     return board;
 }());
 var Tchess;
