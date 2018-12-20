@@ -1,6 +1,7 @@
 namespace Tchess {
     export class pawn extends figure {
         public name: string = "Bauer";
+        public fenCode: string = "p";
         public changePossible: boolean = false;
         public steps: Array<Array<number>> = [[0, 1], [1, 1], [-1, 1]];
 

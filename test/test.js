@@ -23,3 +23,4 @@ console.log(g.moveFigure([2,black], [2,--black]));
 
 console.log(g.moveFigure([1,white], [2,++white]));
  
+console.log(g.getAsFEN());

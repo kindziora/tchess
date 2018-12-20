@@ -284,5 +284,27 @@ class board {
         this.color = imp.color;
         this.lost = lost;
     }
+   
+    getAsFEN(): string {
+        let FEN = [];
+        for (let y = 0; y < this.fields.length; y++) {
+            let row = "", fc = "0";
+            for (let x = 0; x < this.fields[y].length; x++) {
+                // @ts-ignore
+                fc = typeof this.fields[y][x] === "object" ? this.fields[y][x].fenChar :!isNaN(1 + parseInt(fc)) ? 1 + parseInt(fc) : 1;
+                
+                if(typeof this.fields[y][x] === "object" ){
+                    row += fc;
+                }else{
+                    if(typeof this.fields[y][1+x] === "object" || 1+x === this.fields.length){
+                        row += fc;
+                    }
+                }
+            }
+            FEN.push(row);
+        }
+        return FEN.join('/') + `${this.hasTurn('white') ? 'w' : 'b'} KQkq - 0 ${this.moves.length}`;
+    };
+
 
 }

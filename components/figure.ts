@@ -6,7 +6,7 @@ class figure {
     public intent: Intent;
     public color: string;
     public plainmoves: Array<string>;
-    public fenCode: string;
+    public fenCode: string = "0";
 
     constructor(
         color: number,
@@ -14,9 +14,12 @@ class figure {
         public board: board
     ) {
         this.color = (color === 0) ? 'black' : 'white';
-        this.fenCode = (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode;
     }
-    
+
+    get fenChar(): string {
+        return (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode.toLowerCase();
+    }
+
     /**
      * 
      */

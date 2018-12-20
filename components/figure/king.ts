@@ -3,7 +3,8 @@ namespace Tchess {
         public name: string = "König";
         public steps: Array<Array<number>> = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
         public checkBy: Array<number>;
-
+        public fenCode: string = "k";
+       
         public getMoves(): Array<Intent> {
             let moves = super.getMoves();
             for (let m in moves) {

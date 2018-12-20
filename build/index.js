@@ -109,9 +109,16 @@ var figure = /** @class */ (function () {
         this.name = "figure";
         this.steps = [[]];
         this._buildSteps = [];
+        this.fenCode = "0";
         this.color = (color === 0) ? 'black' : 'white';
-        this.fenCode = (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode;
     }
+    Object.defineProperty(figure.prototype, "fenChar", {
+        get: function () {
+            return (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode.toLowerCase();
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      *
      */
@@ -241,6 +248,7 @@ var Tchess;
         function bishop() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "Läufer";
+            _this.fenCode = "b";
             _this._buildSteps = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
             return _this;
         }
@@ -256,6 +264,7 @@ var Tchess;
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "König";
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
+            _this.fenCode = "k";
             return _this;
         }
         king.prototype.getMoves = function () {
@@ -281,6 +290,7 @@ var Tchess;
         function knight() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.name = "Pferd";
+            _this.fenCode = "n";
             _this.steps = [[1, 2], [2, 1], [-2, 1], [2, -1], [-1, 2], [1, -2], [-1, -2], [-2, -1]];
             return _this;
         }
@@ -297,6 +307,7 @@ var Tchess;
             _this.position = position;
             _this.board = board;
             _this.name = "Bauer";
+            _this.fenCode = "p";
             _this.changePossible = false;
             _this.steps = [[0, 1], [1, 1], [-1, 1]];
             if (_this.color === "black") {
@@ -601,6 +612,27 @@ var board = /** @class */ (function () {
         this.color = imp.color;
         this.lost = lost;
     };
+    board.prototype.getAsFEN = function () {
+        var FEN = [];
+        for (var y = 0; y < this.fields.length; y++) {
+            var row = "", fc = "0";
+            for (var x = 0; x < this.fields[y].length; x++) {
+                // @ts-ignore
+                fc = typeof this.fields[y][x] === "object" ? this.fields[y][x].fenChar : !isNaN(1 + parseInt(fc)) ? 1 + parseInt(fc) : 1;
+                if (typeof this.fields[y][x] === "object") {
+                    row += fc;
+                }
+                else {
+                    if (typeof this.fields[y][1 + x] === "object" || 1 + x === this.fields.length) {
+                        row += fc;
+                    }
+                }
+            }
+            FEN.push(row);
+        }
+        return FEN.join('/') + ((this.hasTurn('white') ? 'w' : 'b') + " KQkq - 0 " + this.moves.length);
+    };
+    ;
     return board;
 }());
 var Tchess;
