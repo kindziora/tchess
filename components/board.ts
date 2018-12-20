@@ -307,17 +307,13 @@ class board {
     };
 
     fenMoveToBoardMove(positionMove:string): number[][]{
-        positionMove = "e2e3";
-
-        var middle = Math.ceil(positionMove.length / 2);
-        var from = positionMove.slice(0, middle);
-        var to = positionMove.slice(middle);
-         console.log(from,to);
- 
-         return [this.fenToArrayCoordinates(from), this.fenToArrayCoordinates(to)];
+        let middle = Math.ceil(positionMove.length / 2);
+        let from = positionMove.slice(0, middle);
+        let to = positionMove.slice(middle);
+        return [this.fenPositionToArrayCoordinates(from), this.fenPositionToArrayCoordinates(to)];
     }
 
-    fenToArrayCoordinates(positionString:string): number[]{
+    fenPositionToArrayCoordinates(positionString:string): number[]{
         function alphabetPosition(text) {
             return [...text].map(a => parseInt(a, 36) - 10).filter(a => a >= 0)[0];
         }
