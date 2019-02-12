@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -34,9 +34,10 @@ var Flatted = (function (Primitive, primitive) {
             var input = JSON.parse(text, Primitives).map(primitives);
             var value = input[0];
             var $ = reviver || noop;
-            return $('', typeof value === 'object' && value ?
+            var tmp = typeof value === 'object' && value ?
                 revive(input, new Set, value, $) :
-                value);
+                value;
+            return $.call({ '': tmp }, '', tmp);
         },
         stringify: function stringify(value, replacer, space) {
             for (var firstRun, known = new Map, input = [], output = [], $ = replacer && typeof replacer === typeof input ?
@@ -44,12 +45,14 @@ var Flatted = (function (Primitive, primitive) {
                     if (k === '' || -1 < replacer.indexOf(k))
                         return v;
                 } :
-                (replacer || noop), i = +set(known, input, $('', value)), replace = function (key, value) {
+                (replacer || noop), i = +set(known, input, $.call({ '': value }, '', value)), replace = function (key, value) {
                 if (firstRun) {
                     firstRun = !firstRun;
-                    return i < 1 ? value : $(key, value);
+                    return value;
+                    // this was invoking twice each root object
+                    // return i < 1 ? value : $.call(this, key, value);
                 }
-                var after = $(key, value);
+                var after = $.call(this, key, value);
                 switch (typeof after) {
                     case 'object':
                         if (after === null)
@@ -76,14 +79,14 @@ var Flatted = (function (Primitive, primitive) {
                 var tmp = input[value];
                 if (typeof tmp === 'object' && !parsed.has(tmp)) {
                     parsed.add(tmp);
-                    output[key] = $(key, revive(input, parsed, tmp, $));
+                    output[key] = $.call(output, key, revive(input, parsed, tmp, $));
                 }
                 else {
-                    output[key] = $(key, tmp);
+                    output[key] = $.call(output, key, tmp);
                 }
             }
             else
-                output[key] = $(key, value);
+                output[key] = $.call(output, key, value);
             return output;
         }, output);
     }
@@ -321,7 +324,10 @@ var Tchess;
             var starter = (this.color === "white") ? 1 : 6;
             var direction = (this.color === "white") ? 2 : -2;
             if (this.position[1] == starter) {
-                moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
+                var firstBeforePawn = this.isMovable([this.position[0], this.position[1] + (direction / 2)]);
+                if (firstBeforePawn.info !== "gegner schlagen") {
+                    moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
+                }
             }
             var m = moves.filter(function (e) {
                 return (me.position[0] !== e.position[0] && e.info === "gegner schlagen") ||

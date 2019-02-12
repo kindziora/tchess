@@ -24,7 +24,10 @@ namespace Tchess {
             let direction = (this.color === "white") ? 2 : -2;
 
             if (this.position[1] == starter) {
-                moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
+                let firstBeforePawn = this.isMovable([this.position[0], this.position[1] + (direction / 2)]);
+                if(firstBeforePawn.info !=="gegner schlagen"){
+                    moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
+                }
             }
 
             let m = moves.filter((e) =>
