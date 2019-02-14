@@ -145,7 +145,7 @@ class board {
     reviveFigure(color: string, index: number, to: [number, number]): any {
         let figureToReplace = this.getFigure(to);
 
-        if (figureToReplace.type === 'pawn' && figureToReplace.changePossible) {
+        if (figureToReplace.constructor.name === 'pawn' && figureToReplace.changePossible) {
             //change
             this.setFigure(to, this.lost[color][index]);
             this.lost[color] = this.lost[color].splice(index, 1);
