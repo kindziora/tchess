@@ -502,7 +502,7 @@ var board = /** @class */ (function () {
      */
     board.prototype.reviveFigure = function (color, index, to) {
         var figureToReplace = this.getFigure(to);
-        if (figureToReplace.type === 'pawn' && figureToReplace.changePossible) {
+        if (figureToReplace.constructor.name === 'pawn' && figureToReplace.changePossible) {
             //change
             this.setFigure(to, this.lost[color][index]);
             this.lost[color] = this.lost[color].splice(index, 1);
