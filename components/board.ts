@@ -148,7 +148,7 @@ class board {
         if (figureToReplace.constructor.name === 'pawn' && figureToReplace.changePossible) {
             //change
             this.setFigure(to, this.lost[color][index]);
-            this.lost[color] = this.lost[color].splice(index, 1);
+            this.lost[color].splice(index, 1); 
             this.setTerritories(this.getTerritories());
 
             this.hasLost('black');
