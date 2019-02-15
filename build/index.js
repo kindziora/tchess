@@ -430,6 +430,7 @@ var board = /** @class */ (function () {
         }
     };
     board.prototype.setFigure = function (position, figure) {
+        figure.position = position;
         this.fields[position[1]][position[0]] = figure;
         return true;
     };

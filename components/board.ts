@@ -61,6 +61,7 @@ class board {
     }
 
     setFigure(position: [number, number], figure: any): boolean {
+        figure.position = position;
         this.fields[position[1]][position[0]] = figure;
         return true;
     }
@@ -147,7 +148,7 @@ class board {
 
         if (figureToReplace.constructor.name === 'pawn' && figureToReplace.changePossible) {
             //change
-            this.setFigure(to, this.lost[color][index]);
+            this.setFigure(to, this.lost[color][index]); 
             this.lost[color].splice(index, 1); 
             this.setTerritories(this.getTerritories());
 
