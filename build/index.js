@@ -647,8 +647,9 @@ var board = /** @class */ (function () {
         return [this.fenPositionToArrayCoordinates(from), this.fenPositionToArrayCoordinates(to)];
     };
     board.prototype.fenPositionToArrayCoordinates = function (positionString) {
-        function alphabetPosition(text) {
-            return text.slice().map(function (a) { return parseInt(a, 36) - 10; }).filter(function (a) { return a >= 0; })[0];
+        function alphabetPosition(str) {
+            var arr = "abcdefghijklmnopqrstuvwxyz".split("");
+            return str.replace(/[a-z]/ig, function (m) { return arr.indexOf(m.toLowerCase()) + 1; });
         }
         return [alphabetPosition(positionString[0]), parseInt(positionString[1])];
     };

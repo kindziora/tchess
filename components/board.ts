@@ -315,8 +315,9 @@ class board {
     }
 
     fenPositionToArrayCoordinates(positionString:string): number[]{
-        function alphabetPosition(text) {
-            return [...text].map(a => parseInt(a, 36) - 10).filter(a => a >= 0)[0];
+        function alphabetPosition(str) { 
+            var arr = "abcdefghijklmnopqrstuvwxyz".split("");
+            return str.replace(/[a-z]/ig, function(m){ return arr.indexOf(m.toLowerCase()) + 1 });
         }
         return [alphabetPosition(positionString[0]), parseInt(positionString[1])];
     }
