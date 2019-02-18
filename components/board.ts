@@ -319,7 +319,7 @@ class board {
             var arr = "abcdefghijklmnopqrstuvwxyz".split("");
             return str.replace(/[a-z]/ig, function(m){ return arr.indexOf(m.toLowerCase()) + 1 });
         }
-        return [alphabetPosition(positionString[0]), parseInt(positionString[1])];
+        return [parseInt(alphabetPosition(positionString[0])), parseInt(positionString[1])];
     }
 
 
