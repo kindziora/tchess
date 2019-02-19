@@ -304,7 +304,7 @@ class board {
             }
             FEN.push(row);
         }
-        return FEN.join('/') + ` ${ this.hasTurn('white') ? 'w' : 'b' } KQkq - 0 ${this.moves.length === 0 ? 1 : this.moves.length}`;
+        return FEN.reverse().join('/') + ` ${ this.hasTurn('white') ? 'w' : 'b' } KQkq - 0 ${this.moves.length === 0 ? 1 : this.moves.length}`;
     };
 
     fenMoveToBoardMove(positionMove:string): number[][]{
