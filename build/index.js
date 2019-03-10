@@ -400,7 +400,7 @@ var board = /** @class */ (function () {
             "black": {}
         };
         this.winner = null;
-        this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [] };
+        this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {
             this.setWinner(this.color[figure.getOpponentsColor()]);
@@ -441,14 +441,14 @@ var board = /** @class */ (function () {
         var figures = this.getFigures(color);
         for (var f in figures) {
             if (figures[f].canMove()) {
-                return true;
+                return false;
             }
         }
         this.onEvent('checkmate', this.getKing(color));
-        return false;
+        return true;
     };
     /**
-     * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+     * events: ['pawnReachEnd','check', 'checkmate', 'castling', 'moved', 'update']
      * @param type
      * @param figure
      */
@@ -456,9 +456,11 @@ var board = /** @class */ (function () {
         for (var evts in this.events[type]) {
             this.events[type][evts].call(this, figure);
         }
+        for (var evts in this.events['update'])
+            this.events['update'][evts].call(this, { "type": type, data: figure });
     };
     /**
-    * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+    * events: ['pawnReachEnd','check', 'checkmate', 'castling', 'moved', 'update']
     */
     board.prototype.on = function (eventName, callback) {
         if (typeof this.events[eventName] === "undefined") {
@@ -489,6 +491,7 @@ var board = /** @class */ (function () {
                 figure.moved(to);
                 this.moves.push([from, to]);
                 this.setTerritories(this.getTerritories());
+                this.onEvent('move', [from, to]);
                 this.hasLost('black');
                 this.hasLost('white');
             }
