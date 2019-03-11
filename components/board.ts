@@ -74,7 +74,7 @@ class board {
         let figures = this.getFigures(color);
         for (let f in figures) {
             if (figures[f].canMove()) {
-                return true;
+                return false;
             }
         }
         this.onEvent('checkmate', this.getKing(color));
