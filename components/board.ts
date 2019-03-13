@@ -19,7 +19,7 @@ class board {
 
     private winner: string = null;
 
-    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [] };
+    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move' : [], 'update' : [] };
 
     /**
      * 
@@ -74,15 +74,15 @@ class board {
         let figures = this.getFigures(color);
         for (let f in figures) {
             if (figures[f].canMove()) {
-                return true;
+                return false;
             }
         }
         this.onEvent('checkmate', this.getKing(color));
-        return false;
+        return true;
     }
 
     /**
-     * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+     * events: ['pawnReachEnd','check', 'checkmate', 'castling', 'moved', 'update']
      * @param type 
      * @param figure 
      */
@@ -90,9 +90,12 @@ class board {
         for (let evts in this.events[type]) {
             this.events[type][evts].call(this, figure);
         }
-    }
+        for (let evts in this.events['update']) 
+            this.events['update'][evts].call(this, {"type" : type, data : figure});
+     }
+
     /**
-    * events: ['pawnReachEnd','check', 'checkmate', 'castling']
+    * events: ['pawnReachEnd','check', 'checkmate', 'castling', 'moved', 'update']
     */
     on(eventName: string, callback) {
         if (typeof this.events[eventName] === "undefined") {
@@ -129,6 +132,8 @@ class board {
                 this.moves.push([from, to]);
 
                 this.setTerritories(this.getTerritories());
+
+                this.onEvent('move', [from, to]);
 
                 this.hasLost('black');
                 this.hasLost('white');
