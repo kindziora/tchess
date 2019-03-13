@@ -304,7 +304,9 @@ class board {
             }
             FEN.push(row);
         }
-        return FEN.join('/') + ` ${ this.hasTurn('white') ? 'w' : 'b' } KQkq ${enpassent"-"} 0 ${this.moves.length === 0 ? 1 : this.moves.length}`;
+
+        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} KQkq - 0 ${this.moves.length === 0 ? 1 : this.moves.length}`;
+
     };
 
     fenMoveToBoardMove(positionMove:string): number[][]{
@@ -316,7 +318,7 @@ class board {
 
     fenPositionToArrayCoordinates(positionString:string): number[]{
         function alphabetPosition(str) { 
-            var arr = "abcdefghijklmnopqrstuvwxyz".split("");
+            var arr = "abcdefgh".split("");
             return str.replace(/[a-z]/ig, function(m){ return arr.indexOf(m.toLowerCase()) });
         }
         return [parseInt(alphabetPosition(positionString[0])), parseInt(positionString[1]) -1];
