@@ -48,6 +48,15 @@ namespace Tchess {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
+            let distance = this.history[this.history.length-1][1] - position[1];
+            if(Math.abs(distance) > 1){
+                //enpassant
+                this.board.onEvent('enPassant', [position[0], position[1] + distance]);
+            }
+
+            if( this.history[this.history.length-1][0] - position[0] === 0){
+                this.board.onEvent('halfMove', 0);
+            }
         }
 
     }

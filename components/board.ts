@@ -18,8 +18,10 @@ class board {
     };
 
     private winner: string = null;
+    private _enpassant: string = "";
+    private _halfMove: number = 0;
 
-    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move' : [], 'update' : [] };
+    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [] };
 
     /**
      * 
@@ -32,6 +34,12 @@ class board {
             this.setWinner(this.color[figure.getOpponentsColor()]);
         });
 
+        this.on('enPassant', function (position: [number, number]) {
+            this._enpassant = this.boardPositionToFen(position);
+        });
+        this.on('halfMove', function (order: number) {
+            this._halfMove = order === 0 ? 0 : this._halfMove + order;
+        });
     }
 
     /**
@@ -90,9 +98,9 @@ class board {
         for (let evts in this.events[type]) {
             this.events[type][evts].call(this, figure);
         }
-        for (let evts in this.events['update']) 
-            this.events['update'][evts].call(this, {"type" : type, data : figure});
-     }
+        for (let evts in this.events['update'])
+            this.events['update'][evts].call(this, { "type": type, data: figure });
+    }
 
     /**
     * events: ['pawnReachEnd','check', 'checkmate', 'castling', 'moved', 'update']
@@ -153,8 +161,8 @@ class board {
 
         if (figureToReplace.constructor.name === 'pawn' && figureToReplace.changePossible) {
             //change
-            this.setFigure(to, this.lost[color][index]); 
-            this.lost[color].splice(index, 1); 
+            this.setFigure(to, this.lost[color][index]);
+            this.lost[color].splice(index, 1);
             this.setTerritories(this.getTerritories());
 
             this.hasLost('black');
@@ -205,7 +213,23 @@ class board {
      * @param color 
      */
     getKing(color: string): figure {
-        return this.getFigures(color).filter((f) => f.name === "König")[0];
+        return this.getFigureByTypeAndColor(color, "König");
+    }
+    /**
+     * 
+     * @param color 
+     * @param type 
+     */
+    getFigureByTypeAndColor(color: string, type: string): figure {
+        return this.getFigures(color).filter((f) => f.name === type)[0];
+    }
+    /**
+     * 
+     * @param color 
+     * @param type 
+     */
+    getFiguresByTypeAndColor(color: string, type: string): figure[] {
+        return this.getFigures(color).filter((f) => f.name === type);
     }
     /**
      * 
@@ -290,19 +314,19 @@ class board {
         this.color = imp.color;
         this.lost = lost;
     }
-   
+
     getAsFEN(): string {
         let FEN = [];
         for (let y = 0; y < this.fields.length; y++) {
             let row = "", fc = "0";
             for (let x = 0; x < this.fields[y].length; x++) {
                 // @ts-ignore
-                fc = typeof this.fields[y][x] === "object" ? this.fields[y][x].fenChar :!isNaN(1 + parseInt(fc)) ? 1 + parseInt(fc) : 1;
-                
-                if(typeof this.fields[y][x] === "object" ){
+                fc = typeof this.fields[y][x] === "object" ? this.fields[y][x].fenChar : !isNaN(1 + parseInt(fc)) ? 1 + parseInt(fc) : 1;
+
+                if (typeof this.fields[y][x] === "object") {
                     row += fc;
-                }else{
-                    if(typeof this.fields[y][1+x] === "object" || 1+x === this.fields.length){
+                } else {
+                    if (typeof this.fields[y][1 + x] === "object" || 1 + x === this.fields.length) {
                         row += fc;
                     }
                 }
@@ -310,23 +334,88 @@ class board {
             FEN.push(row);
         }
 
-        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} KQkq - 0 ${this.moves.length === 0 ? 1 : Math.ceil(this.moves.length / 2)}`;
+        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} ${this.getCasting()} ${this.getEnpassant()} ${this.getHalfmoves()} ${this.moves.length === 0 ? 1 : Math.ceil(this.moves.length / 2)}`;
 
     };
 
-    fenMoveToBoardMove(positionMove:string): number[][]{
+    getCastlingForColor(color: string): string {
+        let castlingString = "";
+        let king = this.getFigureByTypeAndColor(color, "König");
+        let tower = this.getFiguresByTypeAndColor(color, "Turm");
+        let castlingMappings = { 2: (color === "white") ? "K" : "k", 3: (color === "white") ? "Q" : "q" }
+        let territories = this.getTerritories();
+        let opponent = (color === "white") ? "black" : "white";
+
+        //has king moved?
+        if (king.hasMoved()) {
+            return "";
+        }
+
+        //king in mate position?
+        if (typeof territories[opponent][king.position.join(',')] !== "undefined") {
+            return "";
+        }
+
+        for (let t in tower) {
+            let dist = king.position[0] - tower[t].position[0];
+            let direction = dist > 0 ? -1 : 1;
+            let y = king.position[1];
+            let cnt = 0;
+
+            for (let inBetween = king.position[0] + direction; inBetween += direction; inBetween != tower[t].position[0]) {
+                cnt++;
+                if (this.getFigure([inBetween, y])) {
+                    //no figures in between king and tower? 
+                    castlingMappings[Math.abs(dist)] = "";
+                }
+
+                //king does not pass enemy territory 
+                if (cnt <= 2) {
+                    if (typeof territories[opponent][[inBetween, y].join(',')] !== "undefined") {
+                        castlingMappings[Math.abs(dist)] = "";
+                    }
+                }
+            }
+            //tower has not moved?
+            castlingString += !tower[t].hasMoved() ? castlingMappings[Math.abs(dist)] : "";
+        }
+
+        return castlingString;
+    }
+
+    getCasting(): string {
+        let castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
+        return castlingInfo !== "" ? castlingInfo : "-";
+    }
+
+    getEnpassant(): string {
+        return this._enpassant;
+    }
+
+    getHalfmoves(): string { 
+        return "" + this._halfMove;
+    }
+    /**
+     * 
+     * @param position 
+     */
+    boardPositionToFen(position: [number, number]): string {
+        return (position[0] != -1) ? "abcdefgh"[position[0]] + position[1] + 1 : "-";
+    }
+
+    fenMoveToBoardMove(positionMove: string): number[][] {
         let middle = Math.ceil(positionMove.length / 2);
         let from = positionMove.slice(0, middle);
         let to = positionMove.slice(middle);
         return [this.fenPositionToArrayCoordinates(from), this.fenPositionToArrayCoordinates(to)];
     }
 
-    fenPositionToArrayCoordinates(positionString:string): number[]{
-        function alphabetPosition(str) { 
+    fenPositionToArrayCoordinates(positionString: string): number[] {
+        function alphabetPosition(str) {
             var arr = "abcdefgh".split("");
-            return str.replace(/[a-z]/ig, function(m){ return arr.indexOf(m.toLowerCase()) });
+            return str.replace(/[a-z]/ig, function (m) { return arr.indexOf(m.toLowerCase()) });
         }
-        return [parseInt(alphabetPosition(positionString[0])), parseInt(positionString[1]) -1];
+        return [parseInt(alphabetPosition(positionString[0])), parseInt(positionString[1]) - 1];
     }
 
 

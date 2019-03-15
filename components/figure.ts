@@ -7,6 +7,8 @@ class figure {
     public color: string;
     public plainmoves: Array<string>;
     public fenCode: string = "0";
+    private _moved = false;
+    private _history: Array<Array<number>> = [];
 
     constructor(
         color: number,
@@ -14,10 +16,15 @@ class figure {
         public board: board
     ) {
         this.color = (color === 0) ? 'black' : 'white';
+        this._history.push(this.position);
     }
 
     get fenChar(): string {
         return (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode.toLowerCase();
+    }
+
+    get history(): Array<Array<number>>{
+        return this._history;
     }
 
     /**
@@ -47,7 +54,13 @@ class figure {
     }
 
     public moved(position: [number, number]) {
+        this._moved = true;
+        this.board.onEvent('enPassant', [-1, -1]);
+        this.board.onEvent('halfMove', 1);
+    }
 
+    public hasMoved() {
+        return this._moved;
     }
 
     public isInMovables(position: [number, number]): boolean {
