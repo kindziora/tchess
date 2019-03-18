@@ -402,7 +402,7 @@ class board {
      * @param position 
      */
     boardPositionToFen(position: [number, number]): string {
-        return (position[0] != -1) ? "abcdefgh"[position[0]] + position[1] + 1 : "-";
+        return (position[0] != -1) ? "abcdefgh"[position[0]] + (position[1] + 1) : "-";
     }
 
     fenMoveToBoardMove(positionMove: string): number[][] {

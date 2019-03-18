@@ -745,7 +745,7 @@ var board = /** @class */ (function () {
      * @param position
      */
     board.prototype.boardPositionToFen = function (position) {
-        return (position[0] != -1) ? "abcdefgh"[position[0]] + position[1] + 1 : "-";
+        return (position[0] != -1) ? "abcdefgh"[position[0]] + (position[1] + 1) : "-";
     };
     board.prototype.fenMoveToBoardMove = function (positionMove) {
         var middle = Math.ceil(positionMove.length / 2);
