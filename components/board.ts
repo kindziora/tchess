@@ -135,7 +135,7 @@ class board {
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
 
-                figure.moved(to);
+                figure.moved(to, from);
 
                 this.moves.push([from, to]);
 
@@ -342,7 +342,7 @@ class board {
         let castlingString = "";
         let king = this.getFigureByTypeAndColor(color, "König");
         let tower = this.getFiguresByTypeAndColor(color, "Turm");
-        let castlingMappings = { 2: (color === "white") ? "K" : "k", 3: (color === "white") ? "Q" : "q" }
+        let castlingMappings = { 3: (color === "white") ? "K" : "k", 4: (color === "white") ? "Q" : "q" }
         let territories = this.getTerritories();
         let opponent = (color === "white") ? "black" : "white";
 
@@ -357,13 +357,15 @@ class board {
         }
 
         for (let t in tower) {
-            let dist = king.position[0] - tower[t].position[0];
-            let direction = dist > 0 ? -1 : 1;
+            let dist =  king.position[0] > tower[t].position[0] ? king.position[0] - tower[t].position[0]:tower[t].position[0] - king.position[0];
             let y = king.position[1];
             let cnt = 0;
-
-            for (let inBetween = king.position[0] + direction; inBetween += direction; inBetween != tower[t].position[0]) {
+            let max = Math.max(king.position[0], tower[t].position[0]);
+            let min = Math.min(king.position[0], tower[t].position[0]);
+            
+            for (let inBetween = min + 1; inBetween <= max; inBetween++ ) {
                 cnt++;
+               
                 if (this.getFigure([inBetween, y])) {
                     //no figures in between king and tower? 
                     castlingMappings[Math.abs(dist)] = "";

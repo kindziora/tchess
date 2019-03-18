@@ -53,7 +53,7 @@ class figure {
         return intent;
     }
 
-    public moved(position: [number, number]) {
+    public moved(position: [number, number], from?: [number, number] ) {
         this._moved = true;
         this.board.onEvent('enPassant', [-1, -1]);
         this.board.onEvent('halfMove', 1);

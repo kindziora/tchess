@@ -23,5 +23,13 @@ console.log(g.moveFigure([2,black], [2,--black]));
 
 console.log(g.moveFigure([1,white], [2,++white]));
  
-console.log(g.getAsFEN());
+
+ console.log("getCasting", g.getCasting());
+ console.log("getEnpassant", g.getEnpassant());
+ console.log("getHalfmoves", g.getHalfmoves());
+
+
+console.log("getAsFEN", g.getAsFEN());
+
+ 
 console.log(FENValidation(g.getAsFEN()));

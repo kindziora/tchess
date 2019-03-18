@@ -113,11 +113,21 @@ var figure = /** @class */ (function () {
         this.steps = [[]];
         this._buildSteps = [];
         this.fenCode = "0";
+        this._moved = false;
+        this._history = [];
         this.color = (color === 0) ? 'black' : 'white';
+        this._history.push(this.position);
     }
     Object.defineProperty(figure.prototype, "fenChar", {
         get: function () {
             return (this.color === "white") ? this.fenCode.toUpperCase() : this.fenCode.toLowerCase();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(figure.prototype, "history", {
+        get: function () {
+            return this._history;
         },
         enumerable: true,
         configurable: true
@@ -143,7 +153,13 @@ var figure = /** @class */ (function () {
         }
         return intent;
     };
-    figure.prototype.moved = function (position) {
+    figure.prototype.moved = function (position, from) {
+        this._moved = true;
+        this.board.onEvent('enPassant', [-1, -1]);
+        this.board.onEvent('halfMove', 1);
+    };
+    figure.prototype.hasMoved = function () {
+        return this._moved;
     };
     figure.prototype.isInMovables = function (position) {
         return this.getMoves().filter(function (e) { return e.position[0] === position[0] &&
@@ -339,12 +355,20 @@ var Tchess;
          * check if end was reached
          * @param position
          */
-        pawn.prototype.moved = function (position) {
+        pawn.prototype.moved = function (position, from) {
             _super.prototype.moved.call(this, position);
             var end = (this.color === "white") ? 7 : 0;
             if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
+            }
+            var distance = from[1] - position[1];
+            if (Math.abs(distance) > 1) {
+                //enpassant
+                this.board.onEvent('enPassant', [position[0], position[1] + distance]);
+            }
+            if (from[0] - position[0] === 0) {
+                this.board.onEvent('halfMove', 0);
             }
         };
         return pawn;
@@ -400,10 +424,18 @@ var board = /** @class */ (function () {
             "black": {}
         };
         this.winner = null;
+        this._enpassant = "";
+        this._halfMove = 0;
         this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {
             this.setWinner(this.color[figure.getOpponentsColor()]);
+        });
+        this.on('enPassant', function (position) {
+            this._enpassant = this.boardPositionToFen(position);
+        });
+        this.on('halfMove', function (order) {
+            this._halfMove = order === 0 ? 0 : this._halfMove + order;
         });
     }
     /**
@@ -488,7 +520,7 @@ var board = /** @class */ (function () {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
-                figure.moved(to);
+                figure.moved(to, from);
                 this.moves.push([from, to]);
                 this.setTerritories(this.getTerritories());
                 this.onEvent('move', [from, to]);
@@ -554,7 +586,23 @@ var board = /** @class */ (function () {
      * @param color
      */
     board.prototype.getKing = function (color) {
-        return this.getFigures(color).filter(function (f) { return f.name === "König"; })[0];
+        return this.getFigureByTypeAndColor(color, "König");
+    };
+    /**
+     *
+     * @param color
+     * @param type
+     */
+    board.prototype.getFigureByTypeAndColor = function (color, type) {
+        return this.getFigures(color).filter(function (f) { return f.name === type; })[0];
+    };
+    /**
+     *
+     * @param color
+     * @param type
+     */
+    board.prototype.getFiguresByTypeAndColor = function (color, type) {
+        return this.getFigures(color).filter(function (f) { return f.name === type; });
     };
     /**
      *
@@ -640,9 +688,65 @@ var board = /** @class */ (function () {
             }
             FEN.push(row);
         }
-        return FEN.reverse().join('/') + (" " + (this.hasTurn('white') ? 'w' : 'b') + " KQkq - 0 " + (this.moves.length === 0 ? 1 : Math.ceil(this.moves.length / 2)));
+        return FEN.reverse().join('/') + (" " + (this.hasTurn('white') ? 'w' : 'b') + " " + this.getCasting() + " " + this.getEnpassant() + " " + this.getHalfmoves() + " " + (this.moves.length === 0 ? 1 : Math.ceil(this.moves.length / 2)));
     };
     ;
+    board.prototype.getCastlingForColor = function (color) {
+        var castlingString = "";
+        var king = this.getFigureByTypeAndColor(color, "König");
+        var tower = this.getFiguresByTypeAndColor(color, "Turm");
+        var castlingMappings = { 3: (color === "white") ? "K" : "k", 4: (color === "white") ? "Q" : "q" };
+        var territories = this.getTerritories();
+        var opponent = (color === "white") ? "black" : "white";
+        //has king moved?
+        if (king.hasMoved()) {
+            return "";
+        }
+        //king in mate position?
+        if (typeof territories[opponent][king.position.join(',')] !== "undefined") {
+            return "";
+        }
+        for (var t in tower) {
+            var dist = king.position[0] > tower[t].position[0] ? king.position[0] - tower[t].position[0] : tower[t].position[0] - king.position[0];
+            var y = king.position[1];
+            var cnt = 0;
+            var max = Math.max(king.position[0], tower[t].position[0]);
+            var min = Math.min(king.position[0], tower[t].position[0]);
+            for (var inBetween = min + 1; inBetween <= max; inBetween++) {
+                cnt++;
+                if (this.getFigure([inBetween, y])) {
+                    //no figures in between king and tower? 
+                    castlingMappings[Math.abs(dist)] = "";
+                }
+                //king does not pass enemy territory 
+                if (cnt <= 2) {
+                    if (typeof territories[opponent][[inBetween, y].join(',')] !== "undefined") {
+                        castlingMappings[Math.abs(dist)] = "";
+                    }
+                }
+            }
+            //tower has not moved?
+            castlingString += !tower[t].hasMoved() ? castlingMappings[Math.abs(dist)] : "";
+        }
+        return castlingString;
+    };
+    board.prototype.getCasting = function () {
+        var castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
+        return castlingInfo !== "" ? castlingInfo : "-";
+    };
+    board.prototype.getEnpassant = function () {
+        return this._enpassant;
+    };
+    board.prototype.getHalfmoves = function () {
+        return "" + this._halfMove;
+    };
+    /**
+     *
+     * @param position
+     */
+    board.prototype.boardPositionToFen = function (position) {
+        return (position[0] != -1) ? "abcdefgh"[position[0]] + position[1] + 1 : "-";
+    };
     board.prototype.fenMoveToBoardMove = function (positionMove) {
         var middle = Math.ceil(positionMove.length / 2);
         var from = positionMove.slice(0, middle);

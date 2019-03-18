@@ -41,20 +41,21 @@ namespace Tchess {
          * check if end was reached
          * @param position 
          */
-        public moved(position: [number, number]) {
+        public moved(position: [number, number], from?: [number, number] ) {
             super.moved(position);
             let end = (this.color === "white") ? 7 : 0;
             if(position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
-            let distance = this.history[this.history.length-1][1] - position[1];
+            let distance = from[1] - position[1];
+
             if(Math.abs(distance) > 1){
                 //enpassant
                 this.board.onEvent('enPassant', [position[0], position[1] + distance]);
             }
 
-            if( this.history[this.history.length-1][0] - position[0] === 0){
+            if( from[0] - position[0] === 0){
                 this.board.onEvent('halfMove', 0);
             }
         }
