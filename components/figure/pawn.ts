@@ -52,7 +52,7 @@ namespace Tchess {
 
             if(Math.abs(distance) > 1){
                 //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1]?distance:-distance) ]);
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1]?1:-1) ]);
             }
 
             if( from[0] - position[0] === 0){
