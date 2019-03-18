@@ -48,11 +48,11 @@ namespace Tchess {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
-            let distance = from[1] - position[1];
+            let distance = from[1] > position[1] ? from[1] - position[1]:position[1] - from[1];
 
             if(Math.abs(distance) > 1){
                 //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + distance]);
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1]?distance:-distance) ]);
             }
 
             if( from[0] - position[0] === 0){

@@ -362,10 +362,10 @@ var Tchess;
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
-            var distance = from[1] - position[1];
+            var distance = from[1] > position[1] ? from[1] - position[1] : position[1] - from[1];
             if (Math.abs(distance) > 1) {
                 //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + distance]);
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? distance : -distance)]);
             }
             if (from[0] - position[0] === 0) {
                 this.board.onEvent('halfMove', 0);
