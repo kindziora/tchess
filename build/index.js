@@ -345,9 +345,19 @@ var Tchess;
                     moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
                 }
             }
+            var enpsPosition = [];
+            if (this.board.getEnpassant() !== "-") {
+                var byFigure = this.board.getEnpassantFigure();
+                if (byFigure.color !== this.color) { //enemy
+                    enpsPosition = this.board.fenPositionToArrayCoordinates(this.board.getEnpassant());
+                }
+            }
             var m = moves.filter(function (e) {
-                return (me.position[0] !== e.position[0] && e.info === "gegner schlagen") ||
-                    (me.position[0] === e.position[0] && e.info !== "gegner schlagen");
+                return (me.position[0] !== e.position[0] && e.info === "gegner schlagen") || // beat enemy
+                    (me.position[0] === e.position[0] && e.info !== "gegner schlagen") || // empty field
+                    (me.position[0] !== e.position[0] && e.info !== "gegner schlagen" && // enpasse beat enemy
+                        enpsPosition.length > 0 && e.position[0] === enpsPosition[0] &&
+                        e.position[1] === enpsPosition[1]);
             });
             return m;
         };
@@ -365,7 +375,16 @@ var Tchess;
             var distance = from[1] > position[1] ? from[1] - position[1] : position[1] - from[1];
             if (Math.abs(distance) > 1) {
                 //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1)]);
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
+            }
+            var enpsPosition = [];
+            if (this.board.getEnpassant() !== "-") {
+                enpsPosition = this.board.fenPositionToArrayCoordinates(this.board.getEnpassant());
+                if (position[0] === enpsPosition[0] && position[1] === enpsPosition[1]) {
+                    // kill the figure related to the enpasse
+                    this.board.lost[this.board.getEnpassantFigure().color].push(this.board.getEnpassantFigure());
+                    this.board.setFigure(this.board.getEnpassantFigure().position, false);
+                }
             }
             if (from[0] - position[0] === 0) {
                 this.board.onEvent('halfMove', 0);
@@ -424,15 +443,17 @@ var board = /** @class */ (function () {
             "black": {}
         };
         this.winner = null;
-        this._enpassant = "";
         this._halfMove = 0;
-        this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [] };
+        this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {
             this.setWinner(this.color[figure.getOpponentsColor()]);
         });
         this.on('enPassant', function (position) {
-            this._enpassant = this.boardPositionToFen(position);
+            this._enpassant = {
+                "fen": this.boardPositionToFen(position),
+                "by": figure
+            };
         });
         this.on('halfMove', function (order) {
             this._halfMove = order === 0 ? 0 : this._halfMove + order;
@@ -520,10 +541,14 @@ var board = /** @class */ (function () {
                 }
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
-                figure.moved(to, from);
                 this.moves.push([from, to]);
                 this.setTerritories(this.getTerritories());
                 this.onEvent('move', [from, to]);
+                figure.moved(to, from);
+                var castling = this.getCasting();
+                if (castling !== "-") {
+                    this.onEvent('castling', castling);
+                }
                 this.hasLost('black');
                 this.hasLost('white');
             }
@@ -735,7 +760,10 @@ var board = /** @class */ (function () {
         return castlingInfo !== "" ? castlingInfo : "-";
     };
     board.prototype.getEnpassant = function () {
-        return this._enpassant;
+        return this._enpassant.fen;
+    };
+    board.prototype.getEnpassantFigure = function () {
+        return this._enpassant.by;
     };
     board.prototype.getHalfmoves = function () {
         return "" + this._halfMove;
