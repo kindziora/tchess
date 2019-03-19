@@ -25,14 +25,25 @@ namespace Tchess {
 
             if (this.position[1] == starter) {
                 let firstBeforePawn = this.isMovable([this.position[0], this.position[1] + (direction / 2)]);
-                if(firstBeforePawn.info !=="gegner schlagen"){
+                if (firstBeforePawn.info !== "gegner schlagen") {
                     moves.push(this.isMovable([this.position[0], this.position[1] + direction]));
+                }
+            }
+            let enpsPosition = [];
+            if (this.board.getEnpassant() !== "-") {
+                let byFigure = this.board.getEnpassantFigure();
+                if (byFigure.color !== this.color) { //enemy
+                    enpsPosition = this.board.fenPositionToArrayCoordinates(this.board.getEnpassant());
                 }
             }
 
             let m = moves.filter((e) =>
-                (me.position[0] !== e.position[0] && e.info === "gegner schlagen") ||
-                (me.position[0] === e.position[0] && e.info !== "gegner schlagen"));
+                (me.position[0] !== e.position[0] && e.info === "gegner schlagen") || // beat enemy
+                (me.position[0] === e.position[0] && e.info !== "gegner schlagen") || // empty field
+                (me.position[0] !== e.position[0] && e.info !== "gegner schlagen" && // enpasse beat enemy
+                    enpsPosition.length > 0 && e.position[0] === enpsPosition[0] &&
+                    e.position[1] === enpsPosition[1])
+            );
 
             return m;
         }
@@ -41,21 +52,32 @@ namespace Tchess {
          * check if end was reached
          * @param position 
          */
-        public moved(position: [number, number], from?: [number, number] ) {
+        public moved(position: [number, number], from?: [number, number]) {
             super.moved(position);
             let end = (this.color === "white") ? 7 : 0;
-            if(position[1] === end) {
+            if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
-            let distance = from[1] > position[1] ? from[1] - position[1]:position[1] - from[1];
+            let distance = from[1] > position[1] ? from[1] - position[1] : position[1] - from[1];
 
-            if(Math.abs(distance) > 1){
+            if (Math.abs(distance) > 1) {
                 //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1]?1:-1) ]);
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
+            }
+            let enpsPosition = [];
+
+            if (this.board.getEnpassant() !== "-") {
+                enpsPosition = this.board.fenPositionToArrayCoordinates(this.board.getEnpassant());
+                if (position[0] === enpsPosition[0] && position[1] === enpsPosition[1]) {
+                    // kill the figure related to the enpasse
+                    this.board.lost[this.board.getEnpassantFigure().color].push(this.board.getEnpassantFigure());
+                    this.board.setFigure(this.board.getEnpassantFigure().position, false);
+                }
+
             }
 
-            if( from[0] - position[0] === 0){
+            if (from[0] - position[0] === 0) {
                 this.board.onEvent('halfMove', 0);
             }
         }

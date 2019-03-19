@@ -1,3 +1,8 @@
+interface enpassant {
+    fen: string,
+    by: figure
+}
+
 class board {
     public fields: Array<Array<any>>;
     public moves: Array<Array<any>>;
@@ -18,10 +23,12 @@ class board {
     };
 
     private winner: string = null;
-    private _enpassant: string = "";
+
+    private _enpassant: enpassant;
+
     private _halfMove: number = 0;
 
-    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [] };
+    public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
 
     /**
      * 
@@ -34,8 +41,12 @@ class board {
             this.setWinner(this.color[figure.getOpponentsColor()]);
         });
 
-        this.on('enPassant', function (position: [number, number]) {
-            this._enpassant = this.boardPositionToFen(position);
+        this.on('enPassant', function (position: [number, number, figure]) {
+            this._enpassant = {
+                "fen": this.boardPositionToFen(position),
+                "by": figure
+            };
+
         });
         this.on('halfMove', function (order: number) {
             this._halfMove = order === 0 ? 0 : this._halfMove + order;
@@ -135,13 +146,17 @@ class board {
                 this.setFigure(to, figure);
                 this.setFigure(from, false);
 
-                figure.moved(to, from);
-
                 this.moves.push([from, to]);
 
                 this.setTerritories(this.getTerritories());
 
                 this.onEvent('move', [from, to]);
+                figure.moved(to, from);
+
+                let castling = this.getCasting();
+                if (castling !== "-") {
+                    this.onEvent('castling', castling);
+                }
 
                 this.hasLost('black');
                 this.hasLost('white');
@@ -357,15 +372,15 @@ class board {
         }
 
         for (let t in tower) {
-            let dist =  king.position[0] > tower[t].position[0] ? king.position[0] - tower[t].position[0]:tower[t].position[0] - king.position[0];
+            let dist = king.position[0] > tower[t].position[0] ? king.position[0] - tower[t].position[0] : tower[t].position[0] - king.position[0];
             let y = king.position[1];
             let cnt = 0;
             let max = Math.max(king.position[0], tower[t].position[0]);
             let min = Math.min(king.position[0], tower[t].position[0]);
-            
-            for (let inBetween = min + 1; inBetween <= max; inBetween++ ) {
+
+            for (let inBetween = min + 1; inBetween <= max; inBetween++) {
                 cnt++;
-               
+
                 if (this.getFigure([inBetween, y])) {
                     //no figures in between king and tower? 
                     castlingMappings[Math.abs(dist)] = "";
@@ -391,10 +406,14 @@ class board {
     }
 
     getEnpassant(): string {
-        return this._enpassant;
+        return this._enpassant.fen;
     }
 
-    getHalfmoves(): string { 
+    getEnpassantFigure(): figure {
+        return this._enpassant.by;
+    }
+
+    getHalfmoves(): string {
         return "" + this._halfMove;
     }
     /**
