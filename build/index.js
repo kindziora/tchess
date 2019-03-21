@@ -448,7 +448,7 @@ var board = /** @class */ (function () {
             by: null
         };
         this._halfMove = 0;
-        this._fullmoves = 0;
+        this._fullmoves = 1;
         this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {

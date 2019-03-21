@@ -30,7 +30,7 @@ class board {
     };
 
     private _halfMove: number = 0;
-    private _fullmoves: number = 0;
+    private _fullmoves: number = 1;
 
     public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
 
