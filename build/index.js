@@ -448,6 +448,7 @@ var board = /** @class */ (function () {
             by: null
         };
         this._halfMove = 0;
+        this._fullmoves = 0;
         this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {
@@ -555,6 +556,9 @@ var board = /** @class */ (function () {
                 }
                 this.hasLost('black');
                 this.hasLost('white');
+                if (figure.color === "black") {
+                    this._fullmoves++;
+                }
             }
         }
         return intent;
@@ -717,7 +721,7 @@ var board = /** @class */ (function () {
             }
             FEN.push(row);
         }
-        return FEN.reverse().join('/') + (" " + (this.hasTurn('white') ? 'w' : 'b') + " " + this.getCasting() + " " + this.getEnpassant() + " " + this.getHalfmoves() + " " + (this.moves.length === 0 ? 1 : Math.ceil((this.moves.length + 1) / 2)));
+        return FEN.reverse().join('/') + (" " + (this.hasTurn('white') ? 'w' : 'b') + " " + this.getCasting() + " " + this.getEnpassant() + " " + this.getHalfmoves() + " " + (this.moves.length === 0 ? 1 : this.getFullmoves()));
     };
     ;
     board.prototype.getCastlingForColor = function (color) {
@@ -771,6 +775,9 @@ var board = /** @class */ (function () {
     };
     board.prototype.getHalfmoves = function () {
         return "" + this._halfMove;
+    };
+    board.prototype.getFullmoves = function () {
+        return "" + this._fullmoves;
     };
     /**
      *

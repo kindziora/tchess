@@ -30,6 +30,7 @@ class board {
     };
 
     private _halfMove: number = 0;
+    private _fullmoves: number = 0;
 
     public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
 
@@ -163,6 +164,9 @@ class board {
 
                 this.hasLost('black');
                 this.hasLost('white');
+                if(figure.color ==="black"){
+                    this._fullmoves++;
+                }
             }
         }
 
@@ -352,7 +356,7 @@ class board {
             FEN.push(row);
         }
 
-        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} ${this.getCasting()} ${this.getEnpassant()} ${this.getHalfmoves()} ${this.moves.length === 0 ? 1 : Math.ceil((this.moves.length +1) / 2)}`;
+        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} ${this.getCasting()} ${this.getEnpassant()} ${this.getHalfmoves()} ${this.moves.length === 0 ? 1 : this.getFullmoves()}`;
 
     };
 
@@ -418,6 +422,10 @@ class board {
 
     getHalfmoves(): string {
         return "" + this._halfMove;
+    }
+
+    getFullmoves(): string {
+        return "" + this._fullmoves;
     }
     /**
      * 
