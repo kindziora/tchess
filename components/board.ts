@@ -24,7 +24,10 @@ class board {
 
     private winner: string = null;
 
-    private _enpassant: enpassant;
+    private _enpassant: enpassant = {
+        fen : "-",
+        by : null
+    };
 
     private _halfMove: number = 0;
 

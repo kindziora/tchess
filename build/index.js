@@ -443,6 +443,10 @@ var board = /** @class */ (function () {
             "black": {}
         };
         this.winner = null;
+        this._enpassant = {
+            fen: "-",
+            by: null
+        };
         this._halfMove = 0;
         this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
         this.loadFromJson(json);
