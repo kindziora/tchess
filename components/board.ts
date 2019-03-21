@@ -141,6 +141,9 @@ class board {
             let kickedFigure = this.getFigure(to);
 
             if (intent.movable) {
+                if(figure.color ==="black"){
+                    this._fullmoves++;
+                }
                 if (kickedFigure) {
                     this.lost[kickedFigure.color].push(kickedFigure);
                     if (kickedFigure.name === "König") {
@@ -164,9 +167,7 @@ class board {
 
                 this.hasLost('black');
                 this.hasLost('white');
-                if(figure.color ==="black"){
-                    this._fullmoves++;
-                }
+              
             }
         }
 
