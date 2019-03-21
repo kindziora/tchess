@@ -352,7 +352,7 @@ class board {
             FEN.push(row);
         }
 
-        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} ${this.getCasting()} ${this.getEnpassant()} ${this.getHalfmoves()} ${this.moves.length === 0 ? 1 : Math.ceil(this.moves.length / 2)}`;
+        return FEN.reverse().join('/') + ` ${this.hasTurn('white') ? 'w' : 'b'} ${this.getCasting()} ${this.getEnpassant()} ${this.getHalfmoves()} ${this.moves.length === 0 ? 1 : Math.ceil((this.moves.length +1) / 2)}`;
 
     };
 
