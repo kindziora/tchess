@@ -48,7 +48,7 @@ class board {
         this.on('enPassant', function (position: [number, number, figure]) {
             this._enpassant = {
                 "fen": this.boardPositionToFen(position),
-                "by": figure
+                "by": position[2]
             };
 
         });

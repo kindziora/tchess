@@ -462,7 +462,7 @@ var board = /** @class */ (function () {
         this.on('enPassant', function (position) {
             this._enpassant = {
                 "fen": this.boardPositionToFen(position),
-                "by": figure
+                "by": position[2]
             };
         });
         this.on('halfMove', function (order) {
