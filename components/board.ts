@@ -391,11 +391,13 @@ class board {
             for (let inBetween = min + 1; inBetween <= max; inBetween++) {
                 cnt++;
 
-                if (this.getFigure([inBetween-1, y])) {
-                    //no figures in between king and tower? 
-                    castlingMappings[Math.abs(dist)] = "";
+                if(king.position[0] != inBetween){
+                    if (this.getFigure([inBetween, y])) {
+                        //no figures in between king and tower? 
+                        castlingMappings[Math.abs(dist)] = "";
+                    }
                 }
-
+               
                 //king does not pass enemy territory 
                 if (cnt <= 2) {
                     if (typeof territories[opponent][[inBetween, y].join(',')] !== "undefined") {
