@@ -374,14 +374,6 @@ var Tchess;
                 this.board.onEvent('pawnReachEnd', this);
                 this.changePossible = true;
             }
-            var distance = from[1] > position[1] ? from[1] - position[1] : position[1] - from[1];
-            if (Math.abs(distance) > 1) {
-                //enpassant
-                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
-            }
-            else {
-                this.board.onEvent('enPassant', [-1, -1]);
-            }
             var enpsPosition = [];
             if (this.board.getEnpassant() !== "-") {
                 enpsPosition = this.board.fenPositionToArrayCoordinates(this.board.getEnpassant());
@@ -390,6 +382,14 @@ var Tchess;
                     this.board.lost[this.board.getEnpassantFigure().color].push(this.board.getEnpassantFigure());
                     this.board.setFigure(this.board.getEnpassantFigure().position, false);
                 }
+            }
+            var distance = from[1] > position[1] ? from[1] - position[1] : position[1] - from[1];
+            if (Math.abs(distance) > 1) {
+                //enpassant
+                this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
+            }
+            else {
+                this.board.onEvent('enPassant', [-1, -1]);
             }
             if (from[0] - position[0] === 0) {
                 this.board.onEvent('halfMove', 0);
