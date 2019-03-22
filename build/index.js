@@ -287,6 +287,11 @@ var Tchess;
             return _this;
         }
         king.prototype.getMoves = function () {
+            var castlings = this.board.getCastlingForColor(this.color).split("");
+            for (var l in castlings) {
+                var c = castlings[l];
+                this.steps.push(this.castlingPositions[this.color][c]);
+            }
             var moves = _super.prototype.getMoves.call(this);
             for (var m in moves) {
                 var move = moves[m].position.join(',');
