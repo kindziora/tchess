@@ -285,8 +285,8 @@ var Tchess;
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
             _this.fenCode = "k";
             _this.castlingPositions = {
-                'white': { "K": [2, 0], "Q": [-2, 0] },
-                'black': { "k": [-2, 0], "q": [2, 0] }
+                'white': { "K": { steps: [2, 0], tower: [[0, 0], [5, 0]] }, "Q": { steps: [-2, 0], tower: [[0, 0], [5, 0]] } },
+                'black': { "k": { steps: [-2, 0], tower: [[0, 0], [5, 0]] }, "q": { steps: [2, 0], tower: [[0, 0], [5, 0]] } }
             };
             return _this;
         }
@@ -294,8 +294,8 @@ var Tchess;
             var castlings = this.board.getCastlingString().split("");
             for (var l in castlings) {
                 var c = castlings[l];
-                if (typeof this.castlingPositions[this.color][c] !== "undefined") {
-                    this.steps.push(this.castlingPositions[this.color][c]);
+                if (typeof this.castlingPositions[this.color][c].steps !== "undefined") {
+                    this.steps.push(this.castlingPositions[this.color][c].steps);
                 }
             }
             var moves = _super.prototype.getMoves.call(this);
@@ -308,6 +308,30 @@ var Tchess;
                 }
             }
             return moves;
+        };
+        /**
+         *
+         * @param position
+         * @param from
+         */
+        king.prototype.moved = function (position, from) {
+            _super.prototype.moved.call(this, position);
+            var distance = from[0] - position[0];
+            if (Math.abs(distance) > 1) {
+                //castling
+                for (var m in this.castlingPositions[this.color].steps) {
+                    var moves = this.castlingPositions[this.color].steps[m];
+                    if (this.castlingPositions[this.color].steps[m].indexOf(distance) > -1) {
+                        var towerFrom = this.castlingPositions[this.color].steps[m].tower[0];
+                        var tower_1 = this.board.getFigure(towerFrom);
+                        var towerTo = this.castlingPositions[this.color].steps[m].tower[1];
+                        this.board.setFigure(towerTo, tower_1);
+                        this.board.setFigure(towerFrom, null);
+                        this.board.setTerritories(this.board.getTerritories());
+                        this.board.onEvent('castling', [from, position, this, m]);
+                    }
+                }
+            }
         };
         return king;
     }(figure));
