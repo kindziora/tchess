@@ -10,10 +10,12 @@ namespace Tchess {
         };
  
         public getMoves(): Array<Intent> {
-            let castlings = this.board.getCastlingForColor(this.color).split("");
+            let castlings = this.board.getCastlingString().split("");
             for(let l in castlings){
                 let c = castlings[l];
-                this.steps.push(this.castlingPositions[this.color][c]);
+                if(typeof this.castlingPositions[this.color][c] !== "undefined"){
+                    this.steps.push(this.castlingPositions[this.color][c]);
+                }
             }
 
             let moves = super.getMoves();

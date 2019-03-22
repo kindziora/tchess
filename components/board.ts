@@ -31,6 +31,8 @@ class board {
 
     private _halfMove: number = 0;
     private _fullmoves: number = 1;
+    private _castlingString: string = "-";
+    private _fen: string = "";
 
     public events: object = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
 
@@ -159,7 +161,7 @@ class board {
 
                 this.onEvent('move', [from, to]);
                 figure.moved(to, from);
-
+                this._fen = this.getAsFEN();
                 let castling = this.getCasting();
                 if (castling !== "-") {
                     this.onEvent('castling', castling);
@@ -403,14 +405,20 @@ class board {
             }
             //tower has not moved?
             castlingString += !tower[t].hasMoved() ? castlingMappings[Math.abs(dist)] : "";
-        }
-
+        } 
+        
         return castlingString;
     }
 
     getCasting(): string {
         let castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
-        return castlingInfo !== "" ? castlingInfo : "-";
+        
+        this._castlingString = castlingInfo !== "" ? castlingInfo : "-";
+        return this._castlingString;
+    }
+
+    getCastlingString(): string {
+        return this._castlingString;
     }
 
     getEnpassant(): string {

@@ -287,10 +287,12 @@ var Tchess;
             return _this;
         }
         king.prototype.getMoves = function () {
-            var castlings = this.board.getCastlingForColor(this.color).split("");
+            var castlings = this.board.getCastlingString().split("");
             for (var l in castlings) {
                 var c = castlings[l];
-                this.steps.push(this.castlingPositions[this.color][c]);
+                if (typeof this.castlingPositions[this.color][c] !== "undefined") {
+                    this.steps.push(this.castlingPositions[this.color][c]);
+                }
             }
             var moves = _super.prototype.getMoves.call(this);
             for (var m in moves) {
@@ -459,6 +461,8 @@ var board = /** @class */ (function () {
         };
         this._halfMove = 0;
         this._fullmoves = 1;
+        this._castlingString = "-";
+        this._fen = "";
         this.events = { 'pawnReachEnd': [], 'check': [], 'checkmate': [], 'castling': [], 'move': [], 'update': [], 'enPassant': [], 'halfMove': [] };
         this.loadFromJson(json);
         this.on('checkmate', function (figure) {
@@ -563,6 +567,7 @@ var board = /** @class */ (function () {
                 this.setTerritories(this.getTerritories());
                 this.onEvent('move', [from, to]);
                 figure.moved(to, from);
+                this._fen = this.getAsFEN();
                 var castling = this.getCasting();
                 if (castling !== "-") {
                     this.onEvent('castling', castling);
@@ -775,7 +780,11 @@ var board = /** @class */ (function () {
     };
     board.prototype.getCasting = function () {
         var castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
-        return castlingInfo !== "" ? castlingInfo : "-";
+        this._castlingString = castlingInfo !== "" ? castlingInfo : "-";
+        return this._castlingString;
+    };
+    board.prototype.getCastlingString = function () {
+        return this._castlingString;
     };
     board.prototype.getEnpassant = function () {
         return this._enpassant.fen;
