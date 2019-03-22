@@ -766,7 +766,7 @@ var board = /** @class */ (function () {
             var min = Math.min(king.position[0], tower[t].position[0]);
             for (var inBetween = min + 1; inBetween <= max; inBetween++) {
                 cnt++;
-                if (this.getFigure([inBetween, y])) {
+                if (this.getFigure([inBetween - 1, y])) {
                     //no figures in between king and tower? 
                     castlingMappings[Math.abs(dist)] = "";
                 }
