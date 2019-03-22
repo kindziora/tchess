@@ -294,7 +294,7 @@ var Tchess;
             var castlings = this.board.getCastlingString().split("");
             for (var l in castlings) {
                 var c = castlings[l];
-                if (typeof this.castlingPositions[this.color][c].steps !== "undefined") {
+                if (typeof this.castlingPositions[this.color][c] !== "undefined") {
                     this.steps.push(this.castlingPositions[this.color][c].steps);
                 }
             }
@@ -319,12 +319,12 @@ var Tchess;
             var distance = from[0] - position[0];
             if (Math.abs(distance) > 1) {
                 //castling
-                for (var m in this.castlingPositions[this.color].steps) {
-                    var moves = this.castlingPositions[this.color].steps[m];
-                    if (this.castlingPositions[this.color].steps[m].indexOf(distance) > -1) {
-                        var towerFrom = this.castlingPositions[this.color].steps[m].tower[0];
+                for (var m in this.castlingPositions[this.color]) {
+                    var moves = this.castlingPositions[this.color][m].steps;
+                    if (this.castlingPositions[this.color][m].steps.indexOf(distance) > -1) {
+                        var towerFrom = this.castlingPositions[this.color][m].tower[0];
                         var tower_1 = this.board.getFigure(towerFrom);
-                        var towerTo = this.castlingPositions[this.color].steps[m].tower[1];
+                        var towerTo = this.castlingPositions[this.color][m].tower[1];
                         this.board.setFigure(towerTo, tower_1);
                         this.board.setFigure(towerFrom, null);
                         this.board.setTerritories(this.board.getTerritories());

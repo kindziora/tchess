@@ -13,7 +13,7 @@ namespace Tchess {
             let castlings = this.board.getCastlingString().split("");
             for(let l in castlings){
                 let c = castlings[l];
-                if(typeof this.castlingPositions[this.color][c].steps !== "undefined"){
+                if(typeof this.castlingPositions[this.color][c] !== "undefined"){
                     this.steps.push(this.castlingPositions[this.color][c].steps);
                 }
             }
@@ -44,13 +44,13 @@ namespace Tchess {
             if (Math.abs(distance) > 1) {
                 //castling
 
-                for (let m in this.castlingPositions[this.color].steps){
-                    let moves = this.castlingPositions[this.color].steps[m];
-                    if(this.castlingPositions[this.color].steps[m].indexOf(distance) > -1){
-                        let towerFrom = this.castlingPositions[this.color].steps[m].tower[0];
+                for (let m in this.castlingPositions[this.color]){
+                    let moves = this.castlingPositions[this.color][m].steps;
+                    if(this.castlingPositions[this.color][m].steps.indexOf(distance) > -1){
+                        let towerFrom = this.castlingPositions[this.color][m].tower[0];
                         let tower = this.board.getFigure(towerFrom);
                         
-                        let towerTo = this.castlingPositions[this.color].steps[m].tower[1];
+                        let towerTo = this.castlingPositions[this.color][m].tower[1];
 
                         this.board.setFigure(towerTo, tower);
                         this.board.setFigure(towerFrom, null);
