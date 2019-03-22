@@ -284,6 +284,10 @@ var Tchess;
             _this.name = "König";
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
             _this.fenCode = "k";
+            _this.castlingPositions = {
+                'white': { "K": [2, 0], "Q": [-2, 0] },
+                'black': { "k": [-2, 0], "q": [2, 0] }
+            };
             return _this;
         }
         king.prototype.getMoves = function () {

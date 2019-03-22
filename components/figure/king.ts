@@ -4,7 +4,7 @@ namespace Tchess {
         public steps: Array<Array<number>> = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
         public checkBy: Array<number>;
         public fenCode: string = "k";
-        public castlingPositions: {
+        public castlingPositions: object =  {
             'white' : {"K" : [2, 0], "Q" : [-2, 0]},
             'black' : {"k" : [-2, 0], "q" : [2, 0]}
         };
