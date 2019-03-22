@@ -53,7 +53,10 @@ namespace Tchess {
          * @param position 
          */
         public moved(position: [number, number], from?: [number, number]) {
-            super.moved(position);
+            //super.moved(position);
+            //this.board.onEvent('enPassant', [-1, -1]);
+            this.board.onEvent('halfMove', 1);
+
             let end = (this.color === "white") ? 7 : 0;
             if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
@@ -64,6 +67,8 @@ namespace Tchess {
             if (Math.abs(distance) > 1) {
                 //enpassant
                 this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
+            }else{
+                this.board.onEvent('enPassant', [-1, -1]);
             }
             let enpsPosition = [];
 

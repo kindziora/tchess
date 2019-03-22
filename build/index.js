@@ -366,7 +366,9 @@ var Tchess;
          * @param position
          */
         pawn.prototype.moved = function (position, from) {
-            _super.prototype.moved.call(this, position);
+            //super.moved(position);
+            //this.board.onEvent('enPassant', [-1, -1]);
+            this.board.onEvent('halfMove', 1);
             var end = (this.color === "white") ? 7 : 0;
             if (position[1] === end) {
                 this.board.onEvent('pawnReachEnd', this);
@@ -376,6 +378,9 @@ var Tchess;
             if (Math.abs(distance) > 1) {
                 //enpassant
                 this.board.onEvent('enPassant', [position[0], position[1] + (from[1] > position[1] ? 1 : -1), this]);
+            }
+            else {
+                this.board.onEvent('enPassant', [-1, -1]);
             }
             var enpsPosition = [];
             if (this.board.getEnpassant() !== "-") {
