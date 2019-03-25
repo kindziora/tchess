@@ -326,7 +326,7 @@ var Tchess;
                         var tower_1 = this.board.getFigure(towerFrom);
                         var towerTo = this.castlingPositions[this.color][m].tower[1];
                         this.board.setFigure(towerTo, tower_1);
-                        this.board.setFigure(towerFrom, null);
+                        this.board.setFigure(towerFrom, false);
                         this.board.setTerritories(this.board.getTerritories());
                         this.board.onEvent('castling', [from, position, this, m]);
                     }

@@ -53,7 +53,7 @@ namespace Tchess {
                         let towerTo = this.castlingPositions[this.color][m].tower[1];
 
                         this.board.setFigure(towerTo, tower);
-                        this.board.setFigure(towerFrom, null);
+                        this.board.setFigure(towerFrom, false);
                         this.board.setTerritories(this.board.getTerritories());
                         
                         this.board.onEvent('castling', [from, position, this, m]);
