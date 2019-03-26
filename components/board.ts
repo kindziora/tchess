@@ -411,6 +411,9 @@ class board {
         
         return castlingString.split("").sort().join("");
     }
+    //r1bqk1n1/pp2bpp1/2p1p3/4N1P1/NR2nP2/P3P3/3P4/2B1K2r w - - 21 20
+    //r1bqk1n1/pp2bpp1/2p1p3/4N1P1/N3RP2/P3P3/3P4/2B1K2r b - - 22 20
+    //http://analysis.cpuchess.com/
 
     getCasting(): string {
         let castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
