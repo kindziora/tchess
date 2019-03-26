@@ -806,7 +806,7 @@ var board = /** @class */ (function () {
             //tower has not moved?
             castlingString += !tower[t].hasMoved() ? castlingMappings[Math.abs(dist)] : "";
         }
-        return castlingString;
+        return castlingString.split("").sort().join("");
     };
     board.prototype.getCasting = function () {
         var castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");

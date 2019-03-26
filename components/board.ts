@@ -409,7 +409,7 @@ class board {
             castlingString += !tower[t].hasMoved() ? castlingMappings[Math.abs(dist)] : "";
         } 
         
-        return castlingString;
+        return castlingString.split("").sort().join("");
     }
 
     getCasting(): string {
