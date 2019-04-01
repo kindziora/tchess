@@ -5,8 +5,8 @@ namespace Tchess {
         public checkBy: Array<number>;
         public fenCode: string = "k";
         public castlingPositions: object =  {
-            'white' : {"K" : {steps : [2, 0], tower: [[0,0], [5,0]]}, "Q" : {steps : [-2, 0], tower: [[0,0], [5,0]]}},
-            'black' : {"k" : {steps : [-2, 0], tower: [[0,0], [5,0]]}, "q" : {steps : [2, 0], tower: [[0,0], [5,0]]}}
+            'white' : {"K" : {steps : [2, 0], tower: [[7,0], [5,0]]}, "Q" : {steps : [-2, 0], tower: [[0,0], [3,0]]}},
+            'black' : {"k" : {steps : [-2, 0], tower: [[7,7], [5,7]]}, "q" : {steps : [2, 0], tower: [[0,7], [3,7]]}}
         };
         
         public getMoves(): Array<Intent> {

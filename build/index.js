@@ -285,8 +285,8 @@ var Tchess;
             _this.steps = [[0, 1], [1, 1], [1, 0], [0, -1], [-1, -1], [-1, 0], [-1, 1], [1, -1]];
             _this.fenCode = "k";
             _this.castlingPositions = {
-                'white': { "K": { steps: [2, 0], tower: [[0, 0], [5, 0]] }, "Q": { steps: [-2, 0], tower: [[0, 0], [5, 0]] } },
-                'black': { "k": { steps: [-2, 0], tower: [[0, 0], [5, 0]] }, "q": { steps: [2, 0], tower: [[0, 0], [5, 0]] } }
+                'white': { "K": { steps: [2, 0], tower: [[7, 0], [5, 0]] }, "Q": { steps: [-2, 0], tower: [[0, 0], [3, 0]] } },
+                'black': { "k": { steps: [-2, 0], tower: [[7, 7], [5, 7]] }, "q": { steps: [2, 0], tower: [[0, 7], [3, 7]] } }
             };
             return _this;
         }
@@ -808,6 +808,9 @@ var board = /** @class */ (function () {
         }
         return castlingString.split("").sort().join("");
     };
+    //r1bqk1n1/pp2bpp1/2p1p3/4N1P1/NR2nP2/P3P3/3P4/2B1K2r w - - 21 20
+    //r1bqk1n1/pp2bpp1/2p1p3/4N1P1/N3RP2/P3P3/3P4/2B1K2r b - - 22 20
+    //http://analysis.cpuchess.com/
     board.prototype.getCasting = function () {
         var castlingInfo = this.getCastlingForColor("white") + this.getCastlingForColor("black");
         this._castlingString = castlingInfo !== "" ? castlingInfo : "-";
