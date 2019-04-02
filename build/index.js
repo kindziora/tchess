@@ -316,7 +316,7 @@ var Tchess;
          */
         king.prototype.moved = function (position, from) {
             _super.prototype.moved.call(this, position);
-            var distance = from[0] - position[0];
+            var distance = position[0] - from[0];
             if (Math.abs(distance) > 1) {
                 //castling
                 for (var m in this.castlingPositions[this.color]) {

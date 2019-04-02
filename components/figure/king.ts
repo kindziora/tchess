@@ -39,7 +39,7 @@ namespace Tchess {
         public moved(position: [number, number], from?: [number, number]) {
             super.moved(position);
            
-            let distance = from[0] - position[0];
+            let distance = position[0] - from[0];
 
             if (Math.abs(distance) > 1) {
                 //castling
