@@ -181,6 +181,6 @@ class figure {
     public positionInDangerBy(position: Array<number>): object {
         let opponent = this.getOpponentsColor();
         let areal = this.board.territory[opponent];
-        return areal[this.position.join(',')];
+        return areal[position.join(',')];
     }
 }

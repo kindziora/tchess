@@ -265,7 +265,7 @@ var figure = /** @class */ (function () {
     figure.prototype.positionInDangerBy = function (position) {
         var opponent = this.getOpponentsColor();
         var areal = this.board.territory[opponent];
-        return areal[this.position.join(',')];
+        return areal[position.join(',')];
     };
     return figure;
 }());
