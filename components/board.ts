@@ -289,6 +289,13 @@ class board {
                         let pm = plainmoves[i];
                         territory[this.fields[y][x].color][pm] = [y, x];
                     }
+                    let plainmoves2 = this.fields[y][x].getPlainmoves(true);
+                    for (let i in plainmoves2) {
+                        let pm2 = plainmoves2[i];
+                        if(typeof territory[this.fields[y][x].color].territoryIgnoreOwn === "undefined")
+                            territory[this.fields[y][x].color].territoryIgnoreOwn = {};
+                        territory[this.fields[y][x].color].territoryIgnoreOwn[pm2] = [y, x];
+                    }
                 }
             }
         }
@@ -315,6 +322,14 @@ class board {
                     for (let i in plainmoves) {
                         let pm = plainmoves[i];
                         this.territory[this.fields[y][x].color][pm] = [y, x];
+                    }
+
+                    let plainmoves2 = this.fields[y][x].getPlainmoves(true);
+                    for (let i in plainmoves2) {
+                        let pm2 = plainmoves2[i];
+                        if(typeof  this.territory[this.fields[y][x].color].territoryIgnoreOwn === "undefined")
+                            this.territory[this.fields[y][x].color].territoryIgnoreOwn = {};
+                        this.territory[this.fields[y][x].color].territoryIgnoreOwn[pm2] = [y, x];
                     }
 
                 } else {

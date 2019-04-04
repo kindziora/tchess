@@ -9,7 +9,7 @@ namespace Tchess {
             'black' : {"k" : {steps : [-2, 0], tower: [[7,7], [5,7]]}, "q" : {steps : [2, 0], tower: [[0,7], [3,7]]}}
         };
         
-        public getMoves(): Array<Intent> {
+        public getMoves(ignoreOwn?: boolean): Array<Intent> {
             let castlings = this.board.getCastlingString().split("");
             for(let l in castlings){
                 let c = castlings[l];
@@ -18,10 +18,10 @@ namespace Tchess {
                 }
             }
 
-            let moves = super.getMoves();
+            let moves = super.getMoves(ignoreOwn);
             for (let m in moves) {
                 let move = moves[m].position.join(',');
-                let opponent = this.getOpponentsColor();
+               
                 if (this.positionInDangerBy(moves[m].position)) {
                     moves[m].movable = false;
                     moves[m].info = "Spieler im Schach";

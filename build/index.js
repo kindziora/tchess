@@ -165,7 +165,7 @@ var figure = /** @class */ (function () {
         return this.getMoves().filter(function (e) { return e.position[0] === position[0] &&
             e.position[1] === position[1]; }).length > 0;
     };
-    figure.prototype.isMovable = function (position) {
+    figure.prototype.isMovable = function (position, ignoreOwn) {
         var field = this.board.getFigure(position);
         var result = { movable: true, info: "", position: position };
         if (typeof field === "undefined") {
@@ -174,7 +174,7 @@ var figure = /** @class */ (function () {
         }
         else if (typeof field.name !== "undefined") {
             if (field.color === this.color) {
-                result.movable = false;
+                result.movable = ignoreOwn ? true : false;
                 result.info = "eigene Figur";
             }
             else {
@@ -188,7 +188,7 @@ var figure = /** @class */ (function () {
         }
         return result;
     };
-    figure.prototype.generateSteps = function (position) {
+    figure.prototype.generateSteps = function (position, ignoreOwn) {
         var s = [];
         for (var m in this._buildSteps) {
             var dir = this._buildSteps[m];
@@ -196,20 +196,20 @@ var figure = /** @class */ (function () {
             for (var i = 0; i <= this.board.fields.length; i++) {
                 x += dir[0];
                 y += dir[1];
-                var intent = this.isMovable([position[0] + x, position[1] + y]);
+                var intent = this.isMovable([position[0] + x, position[1] + y], ignoreOwn);
                 if (intent.info !== "out of range") {
                     s.push([x, y]);
                 }
-                if (intent.info === "gegner schlagen" || intent.info === "eigene Figur") {
+                if (intent.info === "gegner schlagen" || (intent.info === "eigene Figur" && intent.movable === false)) {
                     break;
                 }
             }
         }
         return s;
     };
-    figure.prototype.getMoves = function () {
+    figure.prototype.getMoves = function (ignoreOwn) {
         var moves = [];
-        var steps = this.steps.concat(this.generateSteps(this.position));
+        var steps = this.steps.concat(this.generateSteps(this.position, ignoreOwn));
         var plain;
         this.plainmoves = [];
         for (var m in steps) {
@@ -217,7 +217,7 @@ var figure = /** @class */ (function () {
                 this.position[0] + steps[m][0],
                 this.position[1] + steps[m][1]
             ];
-            var move = this.isMovable(plain);
+            var move = this.isMovable(plain, ignoreOwn);
             if (move.info !== "out of range") {
                 moves.push(move);
                 this.plainmoves.push(plain.join(','));
@@ -234,9 +234,9 @@ var figure = /** @class */ (function () {
         }
         return moves;
     };
-    figure.prototype.getPlainmoves = function () {
+    figure.prototype.getPlainmoves = function (ignoreOwn) {
         var plainmoves = [];
-        var moves = this.getMoves();
+        var moves = this.getMoves(ignoreOwn);
         for (var m in moves) {
             var move = moves[m];
             plainmoves.push(move.position.join(','));
@@ -264,8 +264,10 @@ var figure = /** @class */ (function () {
      */
     figure.prototype.positionInDangerBy = function (position) {
         var opponent = this.getOpponentsColor();
-        var areal = this.board.territory[opponent];
-        return areal[position.join(',')];
+        if (typeof this.board.territory[opponent].territoryIgnoreOwn === "undefined")
+            return false;
+        var areal = this.board.territory[opponent].territoryIgnoreOwn;
+        return (typeof areal !== "undefined") ? areal[position.join(',')] : false;
     };
     return figure;
 }());
@@ -299,7 +301,7 @@ var Tchess;
             };
             return _this;
         }
-        king.prototype.getMoves = function () {
+        king.prototype.getMoves = function (ignoreOwn) {
             var castlings = this.board.getCastlingString().split("");
             for (var l in castlings) {
                 var c = castlings[l];
@@ -307,10 +309,9 @@ var Tchess;
                     this.steps.push(this.castlingPositions[this.color][c].steps);
                 }
             }
-            var moves = _super.prototype.getMoves.call(this);
+            var moves = _super.prototype.getMoves.call(this, ignoreOwn);
             for (var m in moves) {
                 var move = moves[m].position.join(',');
-                var opponent = this.getOpponentsColor();
                 if (this.positionInDangerBy(moves[m].position)) {
                     moves[m].movable = false;
                     moves[m].info = "Spieler im Schach";
@@ -378,8 +379,8 @@ var Tchess;
             }
             return _this;
         }
-        pawn.prototype.getMoves = function () {
-            var moves = _super.prototype.getMoves.call(this);
+        pawn.prototype.getMoves = function (ignoreOwn) {
+            var moves = _super.prototype.getMoves.call(this, ignoreOwn);
             var me = this;
             var starter = (this.color === "white") ? 1 : 6;
             var direction = (this.color === "white") ? 2 : -2;
@@ -726,6 +727,13 @@ var board = /** @class */ (function () {
                         var pm = plainmoves[i];
                         territory[this.fields[y][x].color][pm] = [y, x];
                     }
+                    var plainmoves2 = this.fields[y][x].getPlainmoves(true);
+                    for (var i in plainmoves2) {
+                        var pm2 = plainmoves2[i];
+                        if (typeof territory[this.fields[y][x].color].territoryIgnoreOwn === "undefined")
+                            territory[this.fields[y][x].color].territoryIgnoreOwn = {};
+                        territory[this.fields[y][x].color].territoryIgnoreOwn[pm2] = [y, x];
+                    }
                 }
             }
         }
@@ -743,6 +751,13 @@ var board = /** @class */ (function () {
                     for (var i in plainmoves) {
                         var pm = plainmoves[i];
                         this.territory[this.fields[y][x].color][pm] = [y, x];
+                    }
+                    var plainmoves2 = this.fields[y][x].getPlainmoves(true);
+                    for (var i in plainmoves2) {
+                        var pm2 = plainmoves2[i];
+                        if (typeof this.territory[this.fields[y][x].color].territoryIgnoreOwn === "undefined")
+                            this.territory[this.fields[y][x].color].territoryIgnoreOwn = {};
+                        this.territory[this.fields[y][x].color].territoryIgnoreOwn[pm2] = [y, x];
                     }
                 }
                 else {

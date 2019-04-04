@@ -17,8 +17,8 @@ namespace Tchess {
             }
         }
 
-        public getMoves(): Array<Intent> {
-            let moves = super.getMoves();
+        public getMoves(ignoreOwn?: boolean): Array<Intent> {
+            let moves = super.getMoves(ignoreOwn);
             let me = this;
             let starter = (this.color === "white") ? 1 : 6;
             let direction = (this.color === "white") ? 2 : -2;

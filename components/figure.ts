@@ -68,7 +68,7 @@ class figure {
             e.position[1] === position[1]).length > 0;
     }
 
-    public isMovable(position: [number, number]): Intent {
+    public isMovable(position: [number, number], ignoreOwn?: boolean): Intent {
 
         let field = this.board.getFigure(position);
 
@@ -79,7 +79,7 @@ class figure {
             result.info = "out of range";
         } else if (typeof field.name !== "undefined") {
             if (field.color === this.color) {
-                result.movable = false;
+                result.movable = ignoreOwn ? true: false;
                 result.info = "eigene Figur";
             } else {
                 result.movable = true;
@@ -93,7 +93,7 @@ class figure {
         return result;
     }
 
-    public generateSteps(position: [number, number]): Array<Array<number>> {
+    public generateSteps(position: [number, number], ignoreOwn?: boolean): Array<Array<number>> {
         let s: Array<Array<number>> = [];
         for (let m in this._buildSteps) {
             let dir = this._buildSteps[m];
@@ -102,13 +102,13 @@ class figure {
                 x += dir[0];
                 y += dir[1];
 
-                let intent = this.isMovable([position[0] + x, position[1] + y]);
+                let intent = this.isMovable([position[0] + x, position[1] + y], ignoreOwn);
 
                 if (intent.info !== "out of range") {
                     s.push([x, y]);
                 }
 
-                if (intent.info === "gegner schlagen" || intent.info === "eigene Figur") {
+                if (intent.info === "gegner schlagen" || (intent.info === "eigene Figur" && intent.movable === false )) {
                     break;
                 }
 
@@ -117,9 +117,9 @@ class figure {
         return s;
     }
 
-    public getMoves(): Array<Intent> {
+    public getMoves(ignoreOwn?: boolean): Array<Intent> {
         let moves = [];
-        let steps = this.steps.concat(this.generateSteps(this.position));
+        let steps = this.steps.concat(this.generateSteps(this.position, ignoreOwn));
         let plain;
         this.plainmoves = [];
         for (let m in steps) {
@@ -127,7 +127,7 @@ class figure {
                 this.position[0] + steps[m][0],
                 this.position[1] + steps[m][1]
             ];
-            let move: Intent = this.isMovable(plain);
+            let move: Intent = this.isMovable(plain, ignoreOwn);
             if (move.info !== "out of range") {
                 moves.push(move);
                 this.plainmoves.push(plain.join(','));
@@ -147,9 +147,9 @@ class figure {
         return moves;
     }
 
-    public getPlainmoves(): string[] {
+    public getPlainmoves(ignoreOwn?: boolean): string[] {
         let plainmoves = [];
-        let moves = this.getMoves();
+        let moves = this.getMoves(ignoreOwn);
         for (let m in moves) {
             let move: Intent = moves[m];
             plainmoves.push(move.position.join(','));
@@ -178,9 +178,10 @@ class figure {
      * 
      * @param position 
      */
-    public positionInDangerBy(position: Array<number>): object {
+    public positionInDangerBy(position: Array<number>) {
         let opponent = this.getOpponentsColor();
-        let areal = this.board.territory[opponent];
-        return areal[position.join(',')];
+        if(typeof this.board.territory[opponent].territoryIgnoreOwn ==="undefined") return false;
+        let areal = this.board.territory[opponent].territoryIgnoreOwn;
+        return (typeof areal !=="undefined")? areal[position.join(',')] : false;
     }
 }
