@@ -223,6 +223,13 @@ var figure = /** @class */ (function () {
                 this.plainmoves.push(plain.join(','));
             }
         }
+        if (this.name != "König") {
+            var ownKing = this.board.getKing(this.color);
+            if (ownKing.positionInDangerBy(ownKing.position)) {
+                moves = [];
+                this.board.onEvent('check', [this]);
+            }
+        }
         return moves;
     };
     figure.prototype.getPlainmoves = function () {
@@ -394,6 +401,11 @@ var Tchess;
                         enpsPosition.length > 0 && e.position[0] === enpsPosition[0] &&
                         e.position[1] === enpsPosition[1]);
             });
+            var ownKing = this.board.getKing(this.color);
+            if (ownKing.positionInDangerBy(ownKing.position)) {
+                m = [];
+                this.board.onEvent('check', [this]);
+            }
             return m;
         };
         /**

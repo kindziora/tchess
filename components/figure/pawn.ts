@@ -45,6 +45,12 @@ namespace Tchess {
                     e.position[1] === enpsPosition[1])
             );
 
+            let ownKing = this.board.getKing(this.color);
+            if (ownKing.positionInDangerBy(ownKing.position)) {
+                m = [];
+                this.board.onEvent('check', [this]);
+            }
+
             return m;
         }
 
