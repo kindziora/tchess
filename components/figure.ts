@@ -133,13 +133,15 @@ class figure {
                 this.plainmoves.push(plain.join(','));
             } 
         }
-        
+
         if(this.name != "König"){
             let ownKing = this.board.getKing(this.color);
-            if (ownKing.positionInDangerBy(ownKing.position)) {
-                moves = [];
-                this.board.onEvent('check', [this]);
-            }
+            if(ownKing){
+                if (ownKing.positionInDangerBy(ownKing.position)) {
+                    moves = [];
+                    this.board.onEvent('check', [this]);
+                }
+            } 
         }
        
         return moves;

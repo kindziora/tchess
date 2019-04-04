@@ -225,9 +225,11 @@ var figure = /** @class */ (function () {
         }
         if (this.name != "König") {
             var ownKing = this.board.getKing(this.color);
-            if (ownKing.positionInDangerBy(ownKing.position)) {
-                moves = [];
-                this.board.onEvent('check', [this]);
+            if (ownKing) {
+                if (ownKing.positionInDangerBy(ownKing.position)) {
+                    moves = [];
+                    this.board.onEvent('check', [this]);
+                }
             }
         }
         return moves;
@@ -402,9 +404,11 @@ var Tchess;
                         e.position[1] === enpsPosition[1]);
             });
             var ownKing = this.board.getKing(this.color);
-            if (ownKing.positionInDangerBy(ownKing.position)) {
-                m = [];
-                this.board.onEvent('check', [this]);
+            if (ownKing) {
+                if (ownKing.positionInDangerBy(ownKing.position)) {
+                    m = [];
+                    this.board.onEvent('check', [this]);
+                }
             }
             return m;
         };
